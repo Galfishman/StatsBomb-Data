@@ -151,7 +151,7 @@ def main():
             selected_match_info = matches_data[selected_match_index]
             match_id= selected_match_info["match_id"]
                         # Fetch player match statistics
-            player_match = sb.player_match_stats(match_id, "dict", {"user": "gfishman@mtafc.com", "passwd": "KY68PkII"})
+            player_match = sb.player_match_stats(match_id, "dict", {credentials["user"], credentials["passwd"]})
             
             # Convert player match statistics to DataFrame
             players_df = pd.DataFrame(player_match)
@@ -518,40 +518,60 @@ def main():
 #####################################################################################################################################################################
                         #code 4 - All passing 
             
-
-            # Set up the pitch
+           # Set up the pitch
             pitch = Pitch(pitch_type='statsbomb', pitch_color='black', line_color='white')
-            fig, ax = pitch.draw(figsize=(20, 10), constrained_layout=True, tight_layout=False)
+            fig, ax = pitch.draw(figsize=(16, 10), constrained_layout=True, tight_layout=False)
             fig.set_facecolor('black')
 
             # Plot the completed passes in green
 
+            # Filter and plot completed passes
+            completed_passes = df_pass_pressure[(~df_pass_pressure['outcome_name'].isin(['Incomplete', 'Pass_offside', 'Unknown', 'Out'])) & 
+                                                (df_pass_pressure['type_name'] == 'Pass')]
+            for _, row in completed_passes.iterrows():
+                arrow = FancyArrowPatch((row['x'], row['y']), (row['end_x'], row['end_y']),
+                                        arrowstyle="->,head_length=10,head_width=8", color='blue', linewidth=2)
+                ax.add_patch(arrow)
 
-# Plot all passes in blue
-            all_passes = df_pass_pressure[(~df_pass_pressure['outcome_name'].isin(['Incomplete', 'Pass_offside', 'Unknown', 'Out'])) & 
+            # Filter and plot carries with a different arrow style
+            carries = df_pass_pressure[df_pass_pressure['type_name'] == 'Carry']
+            for _, row in carries.iterrows():
+                arrow = FancyArrowPatch((row['x'], row['y']), (row['end_x'], row['end_y']),
+                                        arrowstyle="->,head_length=10,head_width=8", linestyle=':', color='yellow', linewidth=1)
+                ax.add_patch(arrow)
+
+            # Filter and plot uncompleted passes
+            uncompleted_passes = df_pass_pressure[df_pass_pressure['outcome_name'].isin(['Incomplete', 'Pass_offside', 'Unknown', 'Out'])]
+            for _, row in uncompleted_passes.iterrows():
+                arrow = FancyArrowPatch((row['x'], row['y']), (row['end_x'], row['end_y']),
+                                        arrowstyle="->,head_length=10,head_width=8", color='grey', linewidth=2, alpha=0.5)
+                ax.add_patch(arrow)
+
+                
+            all_passes = df_pass_pressure[(df_pass_pressure['outcome_name'].isin(['Incomplee', 'Pass_offide', 'Unnown', 'Out'])) & 
                                (df_pass_pressure['type_name'] == 'Pass')]
             pitch.arrows(all_passes['x'], all_passes['y'],
                         all_passes['end_x'], all_passes['end_y'], 
                         width=3, headwidth=7, headlength=7, color='blue', ax=ax, label='Completed passes')
 
-            all_carry = df_pass_pressure[df_pass_pressure['type_name'] == 'Carry']
+            all_carry = df_pass_pressure[df_pass_pressure['type_name'] == 'Crry']
             pitch.arrows(all_carry['x'], all_carry['y'],
                         all_carry['end_x'], all_carry['end_y'], 
                         width=3, headwidth=7, headlength=7, color='yellow', ax=ax, label='Carries')
             
 
             # Plot uncompleted passes with reduced opacity in grey
-            uncompleted_passes = df_pass_pressure[df_pass_pressure['outcome_name'].isin(['Incomplete', 'Pass_offside', 'Unknown', 'Out'])]
+            uncompleted_passes = df_pass_pressure[df_pass_pressure['outcome_name'].isin(['Incomplte', 'Pas_offside', 'Uknown', 'Out'])]
             pitch.arrows(uncompleted_passes['x'], uncompleted_passes['y'],
                         uncompleted_passes['end_x'], uncompleted_passes['end_y'], 
                         width=3, headwidth=7, headlength=7, color='grey', alpha=0.3, ax=ax, label='Uncompleted passes')
 
             # Set up the legend
             ax.legend(facecolor='white', handlelength=3, edgecolor='None', fontsize=10, loc='lower left')
-            ax_title = ax.set_title(f'Under Pressure Events', fontsize=30,color = 'white')
+            ax_title = ax.set_title(f"{PasserPick} Under Pressure Events" if PasserPick != "All" else f"{TeamPick} Under Pressure Events", fontsize=25, pad=1,color='white')
+
 
             st.pyplot(fig)
-
 
 
 #####################################################################################################################################################################
