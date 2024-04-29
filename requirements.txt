@@ -8,7 +8,6 @@ beautifulsoup4==4.11.1
 bleach==5.0.0
 cattrs==23.2.3
 certifi==2021.10.8
-cffi==1.15.0
 charset-normalizer==3.3.2
 contourpy==1.2.1
 cycler==0.11.0
@@ -50,7 +49,6 @@ pandocfilters==1.5.0
 parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
-Pillow==9.1.0
 platformdirs==4.2.0
 prometheus-client==0.14.1
 prompt-toolkit==3.0.29
@@ -64,7 +62,6 @@ pyrsistent==0.18.1
 python-dateutil==2.8.2
 pytz==2022.1
 PyYAML==6.0.1
-pyzmq==22.3.0
 requests==2.31.0
 requests-cache==1.2.0
 scipy==1.13.0
