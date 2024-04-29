@@ -85,4 +85,5 @@ typing_extensions==4.11.0
 url-normalize==1.4.3
 urllib3==2.2.1
 wcwidth==0.2.5
+adjustText==1.1.1
 webencodings==0.5.1
