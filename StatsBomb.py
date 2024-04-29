@@ -548,7 +548,7 @@ def main():
                 ax.add_patch(arrow)
 
                 
-            all_passes = df_pass_pressure[(df_pass_pressure['outcome_name'].isin(['Incomplee', 'Passoffe', 'Unnow', 'ut'])) & 
+            all_passes = df_pass_pressure[(df_pass_pressure['outcome_name'].isin(['Incomplee', 'Passoffide', 'Unnow', 'ut'])) & 
                                (df_pass_pressure['type_name'] == 'Pass')]
             pitch.arrows(all_passes['x'], all_passes['y'],
                         all_passes['end_x'], all_passes['end_y'], 
@@ -561,7 +561,7 @@ def main():
             
 
             # Plot uncompleted passes with reduced opacity in grey
-            uncompleted_passes = df_pass_pressure[df_pass_pressure['outcome_name'].isin(['Incmplte', 'Pasffside', 'Uknwn', 'ut'])]
+            uncompleted_passes = df_pass_pressure[df_pass_pressure['outcome_name'].isin(['Incomplte', 'Pasffside', 'Uknwn', 'ut'])]
             pitch.arrows(uncompleted_passes['x'], uncompleted_passes['y'],
                         uncompleted_passes['end_x'], uncompleted_passes['end_y'], 
                         width=3, headwidth=7, headlength=7, color='grey', alpha=0.3, ax=ax, label='Uncompleted passes')
