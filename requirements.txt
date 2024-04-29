@@ -9,7 +9,9 @@ bleach==5.0.0
 cattrs==23.2.3
 certifi==2021.10.8
 charset-normalizer==3.3.2
+plottable==0.1.5
 contourpy==1.2.1
+streamlit == 1.33.0
 cycler==0.11.0
 debugpy==1.6.0
 decorator==5.1.1
@@ -83,3 +85,4 @@ urllib3==2.2.1
 wcwidth==0.2.5
 adjustText==1.1.1
 webencodings==0.5.1
+pandas == 2.2.2
