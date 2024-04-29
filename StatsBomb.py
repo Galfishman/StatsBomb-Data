@@ -39,9 +39,9 @@ import os
 
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
-
+credentials = st.secrets["credentials"]
 # Set your login credentials
-credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.user}
+credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.passwd}
 
 # Set environment variables for authentication (optional)
 os.environ['SB_USERNAME'] = credentials['user']
@@ -74,7 +74,6 @@ def competitions() -> list:
     competitions_data = get_resource(url, {credentials["user"], credentials["passwd"]})
     competition_list = []
     for comp in competitions_data:
-        print("Current competition:", comp)
         competition_dict = {
             "competition_name": comp["competition_name"],
             "country_name": comp["country_name"],
@@ -88,7 +87,6 @@ def competitions() -> list:
 def matches(competition_id: int, season_id: int, match_week: int = None, team: str = None) -> list:
     url = f"https://data.statsbomb.com/api/v6/competitions/{competition_id}/seasons/{season_id}/matches"
     matches_data = get_resource(url, {credentials["user"], credentials["passwd"]})
-    print("Matches data:", matches_data)
     matches_list = []
     for match in matches_data:
         if match_week and match.get("match_week", 0) != match_week:
@@ -151,7 +149,7 @@ def main():
             selected_match_info = matches_data[selected_match_index]
             match_id= selected_match_info["match_id"]
                         # Fetch player match statistics
-            player_match = sb.player_match_stats(match_id, "dict", {credentials["user"], credentials["passwd"]})
+            player_match = sb.player_match_stats(match_id,"dict", {"user":credentials["user"] ,"passwd":credentials["passwd"] })
             
             # Convert player match statistics to DataFrame
             players_df = pd.DataFrame(player_match)
