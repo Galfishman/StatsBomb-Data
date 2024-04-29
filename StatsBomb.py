@@ -235,7 +235,7 @@ def main():
 
             # Constructing the header with Markdown formatting
             match_details_md = f"""
-            ### {selected_match_info['home_team']} {selected_match_info['home_score']} - {selected_match_info['away_score']} {selected_match_info['away_team']}
+            ### {selected_match['home_team']} {selected_match['home_score']} - {selected_match_info['away_score']} {selected_match_info['away_team']}
             **Date:** {selected_match_info['match_date']}  
             **Stadium:** {selected_match_info['stadium_name']}  
             **Referee:** {selected_match_info['referee_name']}
