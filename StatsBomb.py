@@ -18,6 +18,7 @@ import matplotlib.patheffects as pe
 from matplotlib.legend_handler import HandlerLine2D
 from matplotlib.patches import FancyArrowPatch
 from mplsoccer.pitch import VerticalPitch
+from adjustText import adjust_text
 import matplotlib.colors as mcolors
 import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator, FuncFormatter
@@ -547,7 +548,7 @@ def main():
                 ax.add_patch(arrow)
 
                 
-            all_passes = df_pass_pressure[(df_pass_pressure['outcome_name'].isin(['Incomplee', 'Passoffide', 'Unnow', 'ut'])) & 
+            all_passes = df_pass_pressure[(df_pass_pressure['outcome_name'].isin(['Incomplee', 'Passoffide', 'Unnown', 'Out'])) & 
                                (df_pass_pressure['type_name'] == 'Pass')]
             pitch.arrows(all_passes['x'], all_passes['y'],
                         all_passes['end_x'], all_passes['end_y'], 
