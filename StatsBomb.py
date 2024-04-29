@@ -230,6 +230,11 @@ def main():
 
             # Streamlit app
             st.title('Match Event Data')
+            # Header displaying match details
+            st.header('Match Details')
+            st.write(f"Home Team: {selected_match_info['home_team']}")
+            st.write(f"Away Team: {selected_match_info['away_team']}")
+            st.write(f"Date: {selected_match_info['match_date']}")
 
             # Sidebar for team selection
             TeamPick = st.sidebar.selectbox('Select Team', df['team_name'].unique())
