@@ -613,7 +613,6 @@ def main():
             df_goals = df_shots[(df_shots['outcome_name'] == "Goal")]
             df_ont = df_shots[(df_shots['outcome_name'] == "Saved")]
             df_other_shots = df_shots[~df_shots['outcome_name'].isin(['Goal', 'Saved'])]
-
             pitch = VerticalPitch(pad_bottom=0.5,  # pitch extends slightly below halfway line
                                 pitch_type='statsbomb',
                                 half=True,  # half of a pitch
