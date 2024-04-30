@@ -607,9 +607,8 @@ def main():
             
             st.pyplot(fig)
 #####################################################################################################################################################################
-            df_shots = df_shots
             if PasserPick != "All":
-                    df_shots = df_shots[df_shots['player_name'] == PasserPick]
+                df_shots = df_shots[df_shots['player_name'] == PasserPick]
 
             df_goals = df_shots[(df_shots['outcome_name'] == "Goal")]
             df_ont = df_shots[(df_shots['outcome_name'] == "Saved")]
