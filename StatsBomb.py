@@ -263,6 +263,8 @@ def main():
             End_Zone_Display = st.sidebar.checkbox('Display End Zone')
             if End_Zone_Display:
                 st.write('Plots Shows now the Passes End Zones!')
+            
+            st.wrtie(df_shots)
 
 
             #####################################################################################################################################################################
