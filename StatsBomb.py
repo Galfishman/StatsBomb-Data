@@ -263,7 +263,7 @@ def main():
             End_Zone_Display = st.sidebar.checkbox('Display End Zone')
             if End_Zone_Display:
                 st.write('Plots Shows now the Passes End Zones!')
-            
+            st.write(df_shots)
 
             #####################################################################################################################################################################
 
@@ -607,73 +607,73 @@ def main():
             
             st.pyplot(fig)
 #####################################################################################################################################################################
-            st.write(df_shots)
-            # if PasserPick != "All":
-                # df_shots = df_shots[df_shots['player_name'] == PasserPick]
+            # st.write(df_shots)
+            # # if PasserPick != "All":
+            #     # df_shots = df_shots[df_shots['player_name'] == PasserPick]
 
-            df_goals = df_shots[(df_shots['outcome_name'] == "Goal")]
-            df_ont = df_shots[(df_shots['outcome_name'] == "Saved")]
-            df_other_shots = df_shots[~df_shots['outcome_name'].isin(['Goal', 'Saved'])]
-            pitch = VerticalPitch(pad_bottom=0.5,  # pitch extends slightly below halfway line
-                                pitch_type='statsbomb',
-                                half=True,  # half of a pitch
-                                goal_type='box',
-                                goal_alpha=0.8)  # control the goal transparency
+            # df_goals = df_shots[(df_shots['outcome_name'] == "Goal")]
+            # df_ont = df_shots[(df_shots['outcome_name'] == "Saved")]
+            # df_other_shots = df_shots[~df_shots['outcome_name'].isin(['Goal', 'Saved'])]
+            # pitch = VerticalPitch(pad_bottom=0.5,  # pitch extends slightly below halfway line
+            #                     pitch_type='statsbomb',
+            #                     half=True,  # half of a pitch
+            #                     goal_type='box',
+            #                     goal_alpha=0.8)  # control the goal transparency
 
 
-            shot_fig, shot_ax = pitch.draw(figsize=(10, 8))
-            sc_goals = pitch.scatter(df_goals.x, df_goals.y,
-                                    s=(df_goals.shot_statsbomb_xg * 900) + 100,
-                                    c='white',
-                                    edgecolors='#383838',
-                                    marker='*',  # You can choose a different marker for goals
-                                    label='Goals',
-                                    ax=shot_ax,
-                                    zorder = 2)
+            # shot_fig, shot_ax = pitch.draw(figsize=(10, 8))
+            # sc_goals = pitch.scatter(df_goals.x, df_goals.y,
+            #                         s=(df_goals.shot_statsbomb_xg * 900) + 100,
+            #                         c='white',
+            #                         edgecolors='#383838',
+            #                         marker='*',  # You can choose a different marker for goals
+            #                         label='Goals',
+            #                         ax=shot_ax,
+            #                         zorder = 2)
 
-            # Scatter plot for "Shot Saved" and "Post"
-            sc_ontarget = pitch.scatter(df_ont.x, df_ont.y,
-                                        s=(df_ont.shot_statsbomb_xg * 900) + 100,
-                                        c='blue',
-                                        edgecolors='white',
-                                        marker='o',  # You can choose a different marker for on-target shots
-                                        label='On Target',
-                                        alpha = 0.8,
-                                        ax=shot_ax)
+            # # Scatter plot for "Shot Saved" and "Post"
+            # sc_ontarget = pitch.scatter(df_ont.x, df_ont.y,
+            #                             s=(df_ont.shot_statsbomb_xg * 900) + 100,
+            #                             c='blue',
+            #                             edgecolors='white',
+            #                             marker='o',  # You can choose a different marker for on-target shots
+            #                             label='On Target',
+            #                             alpha = 0.8,
+            #                             ax=shot_ax)
 
-            # Scatter plot for "Miss"
-            sc_miss = pitch.scatter(df_other_shots.x, df_other_shots.y,
-                                    s=(df_other_shots.shot_statsbomb_xg * 900) + 100,
-                                    c='grey',
-                                    edgecolors='white',
-                                    marker='X',
-                                    label='Misses',
-                                    ax=shot_ax,
-                                    alpha = 0.3)
+            # # Scatter plot for "Miss"
+            # sc_miss = pitch.scatter(df_other_shots.x, df_other_shots.y,
+            #                         s=(df_other_shots.shot_statsbomb_xg * 900) + 100,
+            #                         c='grey',
+            #                         edgecolors='white',
+            #                         marker='X',
+            #                         label='Misses',
+            #                         ax=shot_ax,
+            #                         alpha = 0.3)
 
-            title_text = f"{PasserPick if PasserPick != 'All' else TeamPick} Shots"
-            txt = shot_ax.text(0.5, 1, title_text, transform=shot_ax.transAxes, fontsize=20, ha='center', color='Black')
+            # title_text = f"{PasserPick if PasserPick != 'All' else TeamPick} Shots"
+            # txt = shot_ax.text(0.5, 1, title_text, transform=shot_ax.transAxes, fontsize=20, ha='center', color='Black')
 
-            # Text for goal count at the bottom of the plot
+            # # Text for goal count at the bottom of the plot
 
-            goal_count = len(df_goals)  # Count the number of goals
-            goal_count_text = f"Total Goals: {goal_count}"
-            # Adjust the y-position (e.g., y=-0.1) to move the text below the pitch. Adjust 'ha' and 'va' for alignment.
-            # Calculate counts and xG sums
-            total_shots = len(df_shots)
-            shots_on_target = len(df_ont)
-            total_xg = df_shots['shot_statsbomb_xg'].sum()
+            # goal_count = len(df_goals)  # Count the number of goals
+            # goal_count_text = f"Total Goals: {goal_count}"
+            # # Adjust the y-position (e.g., y=-0.1) to move the text below the pitch. Adjust 'ha' and 'va' for alignment.
+            # # Calculate counts and xG sums
+            # total_shots = len(df_shots)
+            # shots_on_target = len(df_ont)
+            # total_xg = df_shots['shot_statsbomb_xg'].sum()
 
-            # Adjust the goal count text to include these metrics
-            goal_count_text = f"Goals: {goal_count}"
-            shots_text = f"Shots: {total_shots} "
-            xg_text = f"xG: {total_xg:.2f}"  # formatted to 2 decimal places
+            # # Adjust the goal count text to include these metrics
+            # goal_count_text = f"Goals: {goal_count}"
+            # shots_text = f"Shots: {total_shots} "
+            # xg_text = f"xG: {total_xg:.2f}"  # formatted to 2 decimal places
 
-            # Position and display the metrics on the plot
-            txt_goal_count = shot_ax.text(0.5, 0.12, f"{goal_count_text}\n{shots_text}\n{xg_text}", transform=shot_ax.transAxes, fontsize=16, ha='center', va='top', color='black')
+            # # Position and display the metrics on the plot
+            # txt_goal_count = shot_ax.text(0.5, 0.12, f"{goal_count_text}\n{shots_text}\n{xg_text}", transform=shot_ax.transAxes, fontsize=16, ha='center', va='top', color='black')
 
-            # Now, display the plot in Streamlit
-            st.pyplot(shot_fig)
+            # # Now, display the plot in Streamlit
+            # st.pyplot(shot_fig)
 
 
 #####################################################################################################################################################################
