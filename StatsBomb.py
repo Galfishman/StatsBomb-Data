@@ -257,7 +257,9 @@ def main():
                 df_pass = df_pass[df_pass['player_name'] == PasserPick]
                 df_pass_pressure = df_pass_pressure [df_pass_pressure['player_name'] == PasserPick]
                 df_shots = df[(df['team_name'] == TeamPick) & 
-                                            (df['type_name'] == "Shot")]     
+                                            (df['type_name'] == "Shot")]  
+               
+            df_shots=df_shots   
 
 
             End_Zone_Display = st.sidebar.checkbox('Display End Zone')
