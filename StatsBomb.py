@@ -99,7 +99,13 @@ def matches(competition_id: int, season_id: int, match_week: int = None, team: s
             "match_id": match["match_id"],
             "home_team": home_team_name,
             "away_team": away_team_name,
-            "match_date": match["match_date"]
+            "match_date": match["match_date"],
+            "home_score": match["home_score"],
+            "away_score": match["away_score"],
+            "competition_name": match["competition"]["competition_name"],
+            "season_name": match["season"]["season_name"],
+            "competition_stage_name": match["competition_stage"]["name"],
+            "stadium_name": match["stadium"]["name"]
         }
         matches_list.append(match_dict)
     return matches_list
