@@ -601,7 +601,7 @@ def main():
             pitch.annotate(text='The direction of play  ', xytext=(45, 82), xy=(85, 82), ha='center', va='center', ax=ax,
                             arrowprops=dict(facecolor='white'), fontsize=12, color='white', fontweight="bold", family="monospace")
 
-            plt.title(f'{PasserPick} : Pressure Map' if PasserPick != "All" else f"{TeamPick} : Pressure Map",
+            plt.title(f'{PasserPick} : Pressure Applied Map' if PasserPick != "All" else f"{TeamPick} : Pressure Applied Map",
                     color='white', size=20,  fontweight="bold", family="monospace")
             
             st.pyplot(fig)
