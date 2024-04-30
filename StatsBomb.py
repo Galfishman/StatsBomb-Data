@@ -264,7 +264,7 @@ def main():
             if End_Zone_Display:
                 st.write('Plots Shows now the Passes End Zones!')
             
-            st.wrtie(df_shots)
+            st.write(df_shots)
 
 
             #####################################################################################################################################################################
