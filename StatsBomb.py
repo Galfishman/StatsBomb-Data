@@ -575,6 +575,36 @@ def main():
 
 #####################################################################################################################################################################
 
+            path_eff2 = [path_effects.Stroke(linewidth=0.2, foreground='black'),
+            path_effects.Normal()]
+
+
+            fig ,ax = plt.subplots(figsize=(13, 8),constrained_layout=False, tight_layout=True)
+            fig.set_facecolor('#0e1117')
+            ax.patch.set_facecolor('#0e1117')
+            pitch = Pitch(pitch_type='statsbomb', pitch_color='#0e1117', line_color='white', line_zorder=2)
+            pitch.draw(ax=ax)
+
+
+            bin_statistic = pitch.bin_statistic(press_df.x, press_df.y, statistic='count', bins=(8, 5), normalize=False)
+            pitch.heatmap(bin_statistic, edgecolor='#323b49', ax=ax, alpha=0.55,
+                    cmap=LinearSegmentedColormap.from_list("custom_cmap", ["#f3f9ff", 'blue'], N=100))
+
+            pitch.label_heatmap(bin_statistic, color='white', fontsize=12, ax=ax, ha='center', va='center',
+                                fontweight='bold', family='monospace',path_effects=path_eff2)
+            
+            pitch.scatter(press_df.x, press_df.y, s=50, color='white', ax=ax,alpha=0.3)
+
+            
+            pitch.annotate(text='The direction of play  ', xytext=(45, 82), xy=(85, 82), ha='center', va='center', ax=ax,
+                            arrowprops=dict(facecolor='white'), fontsize=12, color='white', fontweight="bold", family="monospace")
+
+            plt.title(f'{PasserPick} : Pressure Map' if PasserPick != "All" else f"{TeamPick} : Pressure Map",
+                    color='white', size=20,  fontweight="bold", family="monospace")
+            
+            st.pyplot(fig)
+#####################################################################################################################################################################
+
                 # Set the title
             players_df = players_df [['player_name','team_name','minutes','touches','passes','passing_ratio','goals','np_xg','assists','xa','dribbles']].round(2)
             players_df = players_df[(players_df['team_name'] == TeamPick)]
