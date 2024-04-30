@@ -240,6 +240,8 @@ def main():
             df_pass_pressure = df[(df['team_name'] == TeamPick) & 
                                         ((df['type_name'] == "Pass") | (df['type_name'] == "Carry")) & 
                                         (df['under_pressure'] == 1)]
+            press_df_team = df_event[df_event['team_name'] == TeamPick]
+            press_df = press_df_team[(press_df_team['type_name'] == 'Pressure')]
 
 
             # Get unique passers for the selected team
