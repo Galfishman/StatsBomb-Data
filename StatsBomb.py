@@ -267,6 +267,7 @@ def main():
             if PasserPick != "All":
                 df_pass = df_pass[df_pass['player_name'] == PasserPick]
                 df_pass_pressure = df_pass_pressure [df_pass_pressure['player_name'] == PasserPick]
+                press_df = press_df[press_df['player_name']==PasserPick ]
 
                
 
