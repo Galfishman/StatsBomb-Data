@@ -5,7 +5,7 @@ from soccerplots.radar_chart import Radar
 from mplsoccer import PyPizza
 import matplotlib as mpl
 from io import BytesIO
-from mplsoccer import PyPizza, FontManager
+from mplsoccer import PyPizza
 import matplotlib as mpl
 import requests as req
 from requests_cache import CachedSession
