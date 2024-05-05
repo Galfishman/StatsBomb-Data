@@ -96,8 +96,8 @@ if selected_competition_id is not None and selected_season_id is not None:
     url = f"https://data.statsbomb.com/api/v4/competitions/{selected_competition_id}/seasons/{selected_season_id}/player-stats"
     df = get_resource(url, credentials)
 else:
-    st.warning("Please select both a competition and a season.")
-
+    url = f"https://data.statsbomb.com/api/v4/competitions/{1211}/seasons/{281}/player-stats"
+    df = get_resource(url, credentials)
 df = pd.DataFrame(df)
 
 columns_to_drop = [
