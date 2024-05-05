@@ -1,4 +1,3 @@
-# streamlit_app.py
 import streamlit as st
 import warnings
 from tempfile import mkdtemp
