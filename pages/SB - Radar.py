@@ -95,11 +95,16 @@ selected_season_id = next((comp["season_id"] for comp in seasons_filtered if com
 if selected_competition_id is not None and selected_season_id is not None:
     url = f"https://data.statsbomb.com/api/v4/competitions/{selected_competition_id}/seasons/{selected_season_id}/player-stats"
     df = get_resource(url, credentials)
+    
+    # Check if both competition and season are selected
+    if df:
+        df = pd.DataFrame(df)
+        # Other code that relies on df variable
+    else:
+        st.write("No data available for the selected competition and season.")
 else:
     st.warning("Please select both a competition and a season.")
-
-df = pd.DataFrame(df)
-
+    
 columns_to_drop = [
     'player_season_average_space_received_in',
     'player_season_average_fhalf_space_received_in',
