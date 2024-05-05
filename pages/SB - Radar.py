@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from tempfile import mkdtemp
 
 
-plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.family'] = 'Liberation Serif'
 plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
 
 # Set your login credentials
