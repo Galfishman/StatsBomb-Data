@@ -48,7 +48,7 @@ def get_resource(url: str, creds: dict) -> list:
 
 def competitions() -> list:
     url = f"https://data.statsbomb.com/api/v4/competitions"
-    competitions_data = get_resource(url, credentials)
+    competitions_data = get_resource(url, {credentials["user"], credentials["passwd"]})
     competition_list = []
     for comp in competitions_data:
         print("Current competition:", comp)
@@ -64,7 +64,7 @@ def competitions() -> list:
 
 def seasons(competition_id: int) -> list:
     url = f"https://data.statsbomb.com/api/v4/competitions/{competition_id}/seasons"
-    seasons_data = get_resource(url, credentials)
+    seasons_data = get_resource(url, {credentials["user"], credentials["passwd"]})
     season_list = []
     for season in seasons_data:
         season_dict = {
