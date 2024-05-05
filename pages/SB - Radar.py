@@ -51,7 +51,6 @@ def competitions() -> list:
     competitions_data = get_resource(url, {credentials["user"], credentials["passwd"]})
     competition_list = []
     for comp in competitions_data:
-        print("Current competition:", comp)
         competition_dict = {
             "competition_name": comp["competition_name"],
             "country_name": comp["country_name"],
