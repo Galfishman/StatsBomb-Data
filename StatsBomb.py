@@ -373,158 +373,64 @@ def main():
 
 
 #####################################################################################################################################################################
-                 
-            # df_shots=df_freeze
-            
-            # # lineup data
-            # df_lineup = parser.lineup(match_id)
-            # df_lineup = df_lineup[['player_id', 'jersey_number', 'team_name']].copy()
-            # df_shots = df_freeze.merge(df_lineup, how='left', on='player_id')
-            # st.write(df_shots)
+ 
+            # Set focus team and colors
+            focus_team = "TeamPick"
+            bgcolor = "white"
+            color1 = 'grey'  # red
+            color2 = '#9a9a9a'  # grey
+
+            def plot_circle(number, x_co_ord, y_co_ord, size, ax):
+                circ = patches.Circle((x_co_ord, y_co_ord), size, facecolor=color1, ec="black", lw=3, alpha=1, zorder=10)
+                ax.add_patch(circ)
+                ax.text(s=f"{number}%", x=x_co_ord, y=y_co_ord, size=24, color=bgcolor, ha="center", va="center", zorder=11, fontweight='bold')
+
+            def plot_percentage(df_pass, ax):
+                total = len(df_pass)
+                
+                left = len(df_pass[df_pass["end_y"] < 26.6])
+                centre = len(df_pass[(df_pass["end_y"] >= 26.6) & (df_pass["end_y"] < 53.3)])
+                right = len(df_pass[df_pass["end_y"] >= 53.3])
+                
+                left_per = int((left / total) * 100)
+                centre_per = int((centre / total) * 100)
+                right_per = int((right / total) * 100)
+
+                pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
+                pitch.draw(ax=ax)
+                            
+                plot_circle(left_per, 12, 90, 6, ax)
+                plot_circle(centre_per, 40, 90, 6, ax)
+                plot_circle(right_per, 68, 90, 6, ax)
+                
+                for x in [26.6, 53.3]:
+                    ax.axvline(x=x, ymax=0.85, color="white", linestyle='--', lw=1)
+                
+                ax.axhline(y=80, color="white", linestyle='--', lw=3)
+
+            # Filtering and clustering the data
+            df3 = df_pass[(df_pass["x"] < 80) & (df_pass["end_x"] >= 80)]
+
+            dfl = df3[df3["end_y"] < 26.6]
+            dfc = df3[(df3["end_y"] >= 26.6) & (df3["end_y"] < 53.3)]
+            dfr = df3[df3["end_y"] >= 53.3]
+
+            # Plotting the data
+            pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
+            pitch.draw(ax=ax)
+
+            fig = plt.figure(figsize=(18, 14), constrained_layout=True)
+            gs = fig.add_gridspec(nrows=2, ncols=3)
+            fig.patch.set_facecolor(bgcolor)
+
+            ax1 = fig.add_subplot(gs[0, 0:3])
+            plot_percentage(df3, ax1)
+            ax1.set_title(label=f"Percentage of final 3rd passing entries by end zone", fontsize=18)
 
 
-            # shot_ids = df_freeze['id'].unique()
-            # selected_shot_id =  st.sidebar.selectbox("Select Shot", ["All"] + list(shot_ids)) 
-            # if selected_shot_id != "All":
-            #     df_freeze_frame = df_freeze[df_freeze.id == selected_shot_id].copy()
-            #     df_shot_event = df_event[df_event.id == selected_shot_id].dropna(axis=1, how='all').copy()
-
-            #     # add the jersey number
-            #     df_freeze_frame = df_freeze_frame.merge(df_lineup, how='left', on='player_id')
-
-
-
-            #     # strings for team names
-            #     team1 = df_shot_event.team_name.iloc[0]
-            #     team2 = list(set(df_event.team_name.unique()) - {team1})[0]
-
-            #     # subset the team shooting, and the opposition (goalkeeper/ other)
-            #     df_team1 = df_freeze_frame[df_freeze_frame.team_name == team1]
-            #     df_team2_goal = df_freeze_frame[(df_freeze_frame.team_name == team2) &
-            #                                     (df_freeze_frame.position_name == 'Goalkeeper')]
-            #     df_team2_other = df_freeze_frame[(df_freeze_frame.team_name == team2) &
-            #                                     (df_freeze_frame.position_name != 'Goalkeeper')]
-
-            #     # Setup the pitch
-            #     pitch = VerticalPitch(half=True, goal_type='box', pad_bottom=-20)
-
-            #     # We will use mplsoccer's grid function to plot a pitch with a title axis.
-            #     fig, axs = pitch.grid(figheight=8, endnote_height=0,  # no endnote
-            #                         title_height=0.1, title_space=0.02,
-            #                         # Turn off the endnote/title axis. I usually do this after
-            #                         # I am happy with the chart layout and text placement
-            #                         axis=False,
-            #                         grid_height=0.83)
-
-            #     # Plot the players
-            #     sc1 = pitch.scatter(df_team1.x, df_team1.y, s=600, c='#727cce', label='Attacker', ax=axs['pitch'])
-            #     sc2 = pitch.scatter(df_team2_other.x, df_team2_other.y, s=600,
-            #                         c='#5ba965', label='Defender', ax=axs['pitch'])
-            #     sc4 = pitch.scatter(df_team2_goal.x, df_team2_goal.y, s=600,
-            #                         ax=axs['pitch'], c='#c15ca5', label='Goalkeeper')
-
-            #     # plot the shot
-            #     sc3 = pitch.scatter(df_shot_event.x, df_shot_event.y, marker='football',
-            #                         s=600, ax=axs['pitch'], label='Shooter', zorder=1.2)
-            #     line = pitch.lines(df_shot_event.x, df_shot_event.y,
-            #                     df_shot_event.end_x, df_shot_event.end_y, comet=True,
-            #                     label='shot', color='#cb5a4c', ax=axs['pitch'])
-
-            #     # plot the angle to the goal
-            #     pitch.goal_angle(df_shot_event.x, df_shot_event.y, ax=axs['pitch'], alpha=0.2, zorder=1.1,
-            #                     color='#cb5a4c', goal='right')
-
-            #     # plot the jersey numbers
-            #     for i, label in enumerate(df_freeze_frame.jersey_number):
-            #         pitch.annotate(label, (df_freeze_frame.x[i], df_freeze_frame.y[i]),
-            #                     va='center', ha='center', color='white',
-            #                     fontsize=15, ax=axs['pitch'])
-
-            #     # add a legend and title
-            #     legend = axs['pitch'].legend(loc='center left', labelspacing=1.5)
-            #     for text in legend.get_texts():
-            #         text.set_fontsize(20)
-            #         text.set_va('center')
-
-            #     # title
-            #     axs['title'].text(0.5, 0.5, f'{df_shot_event.player_name.iloc[0]}\n{team1} vs. {team2}',
-            #                     va='center', ha='center', color='black',
-            #                     fontsize=25)
-
-            #     st.pyplot(fig)
-
-            # else:
-            #     # Plot all other shots in small multiple plots
-            #     for shot_id in shot_ids:
-            #         if shot_id != selected_shot_id:  # Skip the selected shot
-            #             df_freeze_frame = df_freeze[df_freeze.id == shot_id].copy()
-            #             df_shot_event = df_event[df_event.id == shot_id].dropna(axis=1, how='all').copy()
-
-            #             # add the jersey number
-            #             df_freeze_frame = df_freeze_frame.merge(df_lineup, how='left', on='player_id')
-
-
-
-            #             # strings for team names
-            #             team1 = df_shot_event.team_name.iloc[0]
-            #             team2 = list(set(df_event.team_name.unique()) - {team1})[0]
-
-            #             # subset the team shooting, and the opposition (goalkeeper/ other)
-            #             df_team1 = df_freeze_frame[df_freeze_frame.team_name == team1]
-            #             df_team2_goal = df_freeze_frame[(df_freeze_frame.team_name == team2) &
-            #                                             (df_freeze_frame.position_name == 'Goalkeeper')]
-            #             df_team2_other = df_freeze_frame[(df_freeze_frame.team_name == team2) &
-            #                                             (df_freeze_frame.position_name != 'Goalkeeper')]
-
-            #             # Setup the pitch
-            #             pitch = VerticalPitch(half=True, goal_type='box', pad_bottom=-20)
-
-            #             # We will use mplsoccer's grid function to plot a pitch with a title axis.
-            #             fig, axs = pitch.grid(figheight=8, endnote_height=0,  # no endnote
-            #                                 title_height=0.1, title_space=0.02,
-            #                                 # Turn off the endnote/title axis. I usually do this after
-            #                                 # I am happy with the chart layout and text placement
-            #                                 axis=False,
-            #                                 grid_height=0.83)
-
-            #             # Plot the players
-            #             sc1 = pitch.scatter(df_team1.x, df_team1.y, s=600, c='#727cce', label='Attacker', ax=axs['pitch'])
-            #             sc2 = pitch.scatter(df_team2_other.x, df_team2_other.y, s=600,
-            #                                 c='#5ba965', label='Defender', ax=axs['pitch'])
-            #             sc4 = pitch.scatter(df_team2_goal.x, df_team2_goal.y, s=600,
-            #                                 ax=axs['pitch'], c='#c15ca5', label='Goalkeeper')
-
-            #             # plot the shot
-            #             sc3 = pitch.scatter(df_shot_event.x, df_shot_event.y, marker='football',
-            #                                 s=600, ax=axs['pitch'], label='Shooter', zorder=1.2)
-            #             line = pitch.lines(df_shot_event.x, df_shot_event.y,
-            #                             df_shot_event.end_x, df_shot_event.end_y, comet=True,
-            #                             label='shot', color='#cb5a4c', ax=axs['pitch'])
-
-            #             # plot the angle to the goal
-            #             pitch.goal_angle(df_shot_event.x, df_shot_event.y, ax=axs['pitch'], alpha=0.2, zorder=1.1,
-            #                             color='#cb5a4c', goal='right')
-
-            #             # plot the jersey numbers
-            #             for i, label in enumerate(df_freeze_frame.jersey_number):
-            #                 pitch.annotate(label, (df_freeze_frame.x[i], df_freeze_frame.y[i]),
-            #                             va='center', ha='center', color='white',
-            #                             fontsize=15, ax=axs['pitch'])
-
-            #             # add a legend and title
-            #             legend = axs['pitch'].legend(loc='center left', labelspacing=1.5)
-            #             for text in legend.get_texts():
-            #                 text.set_fontsize(20)
-            #                 text.set_va('center')
-
-            #             # title
-            #             axs['title'].text(0.5, 0.5, f'{df_shot_event.player_name.iloc[0]}\n{TeamPick}',
-            #                             va='center', ha='center', color='black',
-            #                             fontsize=25)
-
-            #             st.pyplot(fig)
-            # st.write(df_shot_event)
-            # st.write(df_freeze_frame)
+            fig.text(s=f"How do {TeamPick} attack each side of the pitch?", x=0.27, y=1.02, fontsize=20,fontweight="bold")
+            # Display the plot in Streamlit
+            st.pyplot(fig)
 
 
 
