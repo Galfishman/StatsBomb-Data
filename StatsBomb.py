@@ -432,7 +432,7 @@ def main():
 
             ax1 = fig.add_subplot(gs[0, 0:3])
             plot_percentage(df3, ax1)
-            ax1.set_title(label=f"Percentage of final 3rd passing entries by end zone", fontsize=18)
+            ax1.set_title(label=f"Final 3rd passing entries by end zone", fontsize=18)
 
 
             fig.text(s=f"How {PasserPick} attack each side of the pitch?" if PasserPick != "All" else f"How {TeamPick} attack each side of the pitch?",  x=0.27, y=1.02,fontsize=20, fontweight="bold",color ='black')
