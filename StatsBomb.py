@@ -406,7 +406,7 @@ def main():
                 plot_circle(centre, 40, 85, 3, ax)
                 plot_circle(right, 68, 85, 3, ax)
 
-                
+
                 pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
                 pitch.draw(ax=ax)
 
@@ -435,7 +435,7 @@ def main():
             ax1.set_title(label=f"Percentage of final 3rd passing entries by end zone", fontsize=18)
 
 
-            fig.text(s=f"How {PasserPick} attack each side of the pitch?" if PasserPick != "All" else f"How{TeamPick} attack each side of the pitch?",  x=0.27, y=1.02,fontsize=20, fontweight="bold",color ='black')
+            fig.text(s=f"How {PasserPick} attack each side of the pitch?" if PasserPick != "All" else f"How {TeamPick} attack each side of the pitch?",  x=0.27, y=1.02,fontsize=20, fontweight="bold",color ='black')
             # Display the plot in Streamlit
             st.pyplot(fig)
 
