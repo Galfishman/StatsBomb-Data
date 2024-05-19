@@ -383,7 +383,7 @@ def main():
             color2 = '#9a9a9a'  # grey
 
             def plot_circle(number, x_co_ord, y_co_ord, size, ax):
-                circ = patches.Circle((x_co_ord, y_co_ord), size, facecolor=color1, ec="black", lw=3, alpha=1, zorder=10)
+                circ = patches.Circle((x_co_ord, y_co_ord), size, facecolor=color1, ec="black", lw=3, alpha=0.7, zorder=10)
                 ax.add_patch(circ)
                 ax.text(s=f"{number}", x=x_co_ord, y=y_co_ord, size=20, color=bgcolor, ha="center", va="center", zorder=11, fontweight='bold')
 
