@@ -398,9 +398,9 @@ def main():
                 centre_per = int((centre / total) * 100)
                 right_per = int((right / total) * 100)
         
-                plot_circle(str(left_per) + "%", 12, 95, 5, ax)
-                plot_circle(str(centre_per) + "%", 40, 95, 5, ax)
-                plot_circle(str(right_per) + "%", 68, 95, 5, ax)
+                plot_circle(str(left_per), 12, 95, 5, ax)
+                plot_circle(str(centre_per), 40, 95, 5, ax)
+                plot_circle(str(right_per), 68, 95, 5, ax)
 
                 plot_circle(left, 12, 85, 3, ax)
                 plot_circle(centre, 40, 85, 3, ax)
