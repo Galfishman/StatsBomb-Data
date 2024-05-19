@@ -35,6 +35,8 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt  # Import matplotlib
 from plottable.table import Table, ColumnDefinition
 import os
+from matplotlib import patches
+
 
 
 plt.rcParams['font.family'] = 'serif'
