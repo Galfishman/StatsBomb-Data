@@ -429,8 +429,11 @@ def main():
             plot_percentage(df3, ax1)
             ax1.set_title(label=f"Percentage of final 3rd passing entries by end zone", fontsize=18)
 
+            if PasserPick != "All
+            
 
-            fig.text(s=f"{PasserPick} attack each side of the pitch?" if PasserPick != "All" else f"{TeamPick} attack each side of the pitch?",  x=0.27, y=1.02,fontsize=20, fontweight="bold",color ='white')
+
+            fig.text(s=f"{PasserPick} attack each side of the pitch?" if PasserPick != "All" else f"{TeamPick} attack each side of the pitch?", x=0.27, y=1.02, fontsize=20, fontweight="bold", color='black')
             # Display the plot in Streamlit
             st.pyplot(fig)
 
