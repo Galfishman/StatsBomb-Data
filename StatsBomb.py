@@ -375,7 +375,8 @@ def main():
 
 
 #####################################################################################################################################################################
- 
+            df_pass = df[(df['team_name'] == TeamPick) & ((df['type_name'] == "Pass") | (df['type_name'] == "Carry")) & (~df['outcome_name'].isin(['Pass Offside', 'Out', 'Incomplete', 'Unknown']))]
+
             # Set focus team and colors
             focus_team = "TeamPick"
             bgcolor = "white"
