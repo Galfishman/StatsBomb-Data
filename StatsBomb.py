@@ -401,7 +401,7 @@ def main():
                 pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
                 pitch.draw(ax=ax)
                             
-                plot_circle(left_per, 12, 90, 6, ax)
+                plot_circle(left_per,left, 12, 90, 6, ax)
                 plot_circle(centre_per, 40, 90, 6, ax)
                 plot_circle(right_per, 68, 90, 6, ax)
                 
