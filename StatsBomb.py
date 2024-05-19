@@ -385,7 +385,7 @@ def main():
             def plot_circle(number, x_co_ord, y_co_ord, size, ax):
                 circ = patches.Circle((x_co_ord, y_co_ord), size, facecolor=color1, ec="black", lw=3, alpha=1, zorder=10)
                 ax.add_patch(circ)
-                ax.text(s=f"{number}", x=x_co_ord, y=y_co_ord, size=20, color=bgcolor, ha="center", va="center", zorder=11, fontweight='bold')
+                ax.text(s=f"{number}%", x=x_co_ord, y=y_co_ord, size=24, color=bgcolor, ha="center", va="center", zorder=11, fontweight='bold')
 
             def plot_percentage(df_pass, ax):
                 total = len(df_pass)
@@ -397,14 +397,13 @@ def main():
                 left_per = int((left / total) * 100)
                 centre_per = int((centre / total) * 100)
                 right_per = int((right / total) * 100)
-        
-                plot_circle(str(left_per), 12, 95, 5, ax)
-                plot_circle(str(centre_per), 40, 95, 5, ax)
-                plot_circle(str(right_per), 68, 95, 5, ax)
 
-                plot_circle(left, 12, 85, 3, ax)
-                plot_circle(centre, 40, 85, 3, ax)
-                plot_circle(right, 68, 85, 3, ax)
+                pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
+                pitch.draw(ax=ax)
+                            
+                plot_circle(left_per, 12, 90, 6, ax)
+                plot_circle(centre_per, 40, 90, 6, ax)
+                plot_circle(right_per, 68, 90, 6, ax)
                 
                 for x in [26.6, 53.3]:
                     ax.axvline(x=x, ymax=0.85, color="white", linestyle='--', lw=1)
