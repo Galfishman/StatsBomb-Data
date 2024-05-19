@@ -406,6 +406,10 @@ def main():
                 plot_circle(centre, 40, 85, 3, ax)
                 plot_circle(right, 68, 85, 3, ax)
 
+                
+                pitch = VerticalPitch(pad_bottom=0.5, pitch_type='statsbomb', half=True, goal_type='box', goal_alpha=0.8,pitch_color='black')
+                pitch.draw(ax=ax)
+
                 for x in [26.6, 53.3]:
                     ax.axvline(x=x, ymax=0.85, color="white", linestyle='--', lw=1)
                 
