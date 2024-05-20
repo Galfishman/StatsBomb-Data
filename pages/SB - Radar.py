@@ -76,7 +76,7 @@ def seasons(competition_id: int) -> list:
 # Get list of competitions
 competition_list = competitions()
 countries = sorted(set(comp["country_name"] for comp in competition_list))
-selected_country = st.sidebar.selectbox("Select Country", ["All"] + countries)
+selected_country = st.sidebar.multiselect("Select Country", ["All"] + countries)
 
 
 competitions_filtered = [comp for comp in competition_list if selected_country == "All" or comp["country_name"] == selected_country]
