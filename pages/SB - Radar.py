@@ -219,9 +219,47 @@ min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_
 
 # Filter the DataFrame based on the selected position group and minimum minutes played
 filtered_players = df[(df['primary_position'].isin(position_mapping[selected_position_group])) & (df['minutes'] >= min_minutes_played)]
+# Add season context to player names
+filtered_players["player_season"] = filtered_players["player_name"] + " (" + filtered_players["season_name"] + ")"
+
+# List of players based on the selected position groups
+players_list = filtered_players["player_season"].unique()
+
+selected_players = st.sidebar.multiselect(
+    "Select Players:",
+    options=players_list,
+)
+
+selected_comparison_players = st.sidebar.multiselect(
+    "Select Comparison Players:",
+    options=["League Average"] + players_list.tolist(),
+)
+
+# Function to extract player name and season name
+def extract_player_season(player_season_str):
+    player_name, season_name = player_season_str.rsplit(" (", 1)
+    season_name = season_name[:-1]  # Remove the closing parenthesis
+    return player_name, season_name
+
+# Filter the DataFrame based on the selected players and comparison players
+def filter_player_season(df, player_season_str):
+    player_name, season_name = extract_player_season(player_season_str)
+    return df[(df["player_name"] == player_name) & (df["season_name"] == season_name)]
+
+# Get the data for selected players
+selected_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_players])
+
+# Get the data for comparison players (handle "League Average" separately if needed)
+if "League Average" in selected_comparison_players:
+    comparison_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_comparison_players if ps != "League Average"])
+    # Calculate league average if needed
+    league_average_data = df.mean(numeric_only=True)
+    league_average_data["player_name"] = "League Average"
+    comparison_players_data = pd.concat([comparison_players_data, league_average_data.to_frame().T], ignore_index=True)
+else:
+    comparison_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_comparison_players])
 
 # List of players based on the selected position group
-players_list = filtered_players["player_name"].unique()
 
 Name = st.sidebar.selectbox(
     "Select the Player:",
