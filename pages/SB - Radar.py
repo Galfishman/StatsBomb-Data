@@ -125,6 +125,7 @@ else:
     df = get_resource(url, credentials)
     df = pd.DataFrame(df)
 
+
 columns_to_drop = [
     'player_season_average_space_received_in',
     'player_season_average_fhalf_space_received_in',
