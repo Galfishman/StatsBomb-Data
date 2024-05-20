@@ -76,29 +76,54 @@ def seasons(competition_id: int) -> list:
 # Get list of competitions
 competition_list = competitions()
 countries = sorted(set(comp["country_name"] for comp in competition_list))
-selected_country = st.sidebar.multiselect("Select Country", ["All"] + countries)
+# Change the selectbox components to multiselect
+selected_countries = st.sidebar.multiselect("Select Country", ["All"] + countries)
 
+# Filter competitions based on selected countries
+if "All" in selected_countries or not selected_countries:
+    competitions_filtered = competition_list
+else:
+    competitions_filtered = [comp for comp in competition_list if comp["country_name"] in selected_countries]
 
-competitions_filtered = [comp for comp in competition_list if selected_country == "All" or comp["country_name"] == selected_country]
 competition_names = sorted(set(comp["competition_name"] for comp in competitions_filtered))
-selected_competition = st.sidebar.selectbox("Select Competition", ["All"] + competition_names)
-selected_competition_id = next((comp["competition_id"] for comp in competitions_filtered if comp["competition_name"] == selected_competition), None)
+selected_competitions = st.sidebar.multiselect("Select Competition", ["All"] + competition_names)
 
-# Get list of seasons for the selected competition
-seasons_filtered = [comp for comp in competitions_filtered if selected_competition == "All" or comp["competition_name"] == selected_competition]
+# Filter competitions based on selected competitions
+if "All" in selected_competitions or not selected_competitions:
+    competitions_filtered = competitions_filtered
+else:
+    competitions_filtered = [comp for comp in competitions_filtered if comp["competition_name"] in selected_competitions]
+
+# Get the competition IDs for the selected competitions
+selected_competition_ids = [comp["competition_id"] for comp in competitions_filtered if comp["competition_name"] in selected_competitions]
+
+# Get list of seasons for the selected competitions
+seasons_filtered = [comp for comp in competitions_filtered]
 season_names = sorted(set(comp["season_name"] for comp in seasons_filtered))
-selected_season = st.sidebar.selectbox("Select Season", ["All"] + season_names)
-selected_season_id = next((comp["season_id"] for comp in seasons_filtered if comp["season_name"] == selected_season), None)
+selected_seasons = st.sidebar.multiselect("Select Season", ["All"] + season_names)
 
+# Filter seasons based on selected seasons
+if "All" in selected_seasons or not selected_seasons:
+    seasons_filtered = seasons_filtered
+else:
+    seasons_filtered = [comp for comp in seasons_filtered if comp["season_name"] in selected_seasons]
+
+# Get the season IDs for the selected seasons
+selected_season_ids = [comp["season_id"] for comp in seasons_filtered if comp["season_name"] in selected_seasons]
 
 # Get player statistics for the selected competition and season
-if selected_competition_id is not None and selected_season_id is not None:
-    url = f"https://data.statsbomb.com/api/v4/competitions/{selected_competition_id}/seasons/{selected_season_id}/player-stats"
-    df = get_resource(url, credentials)
+if selected_competition_ids and selected_season_ids:
+    player_stats_data = []
+    for competition_id in selected_competition_ids:
+        for season_id in selected_season_ids:
+            url = f"https://data.statsbomb.com/api/v4/competitions/{competition_id}/seasons/{season_id}/player-stats"
+            player_stats_data.extend(get_resource(url, credentials))
+    df = pd.DataFrame(player_stats_data)
 else:
+    # Fallback to default competition and season if none selected
     url = f"https://data.statsbomb.com/api/v4/competitions/{1211}/seasons/{281}/player-stats"
     df = get_resource(url, credentials)
-df = pd.DataFrame(df)
+    df = pd.DataFrame(df)
 
 columns_to_drop = [
     'player_season_average_space_received_in',
