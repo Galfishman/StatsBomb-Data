@@ -261,17 +261,8 @@ else:
 
 # List of players based on the selected position group
 
-Name = st.sidebar.selectbox(
-    "Select the Player:",
-    options=players_list,
-)
-
-Name2 = st.sidebar.selectbox(
-    "Select other Player:",
-    options=["League Average"] +filtered_players["player_name"].unique().tolist(),
-)
-
-
+Name = selected_players
+Name2 = selected_comparison_players
     
 # List of all available parameters
 all_params = list(df.columns[18:])
