@@ -76,55 +76,29 @@ def seasons(competition_id: int) -> list:
 # Get list of competitions
 competition_list = competitions()
 countries = sorted(set(comp["country_name"] for comp in competition_list))
-# Change the selectbox components to multiselect
-selected_countries = st.sidebar.multiselect("Select Country", ["All"] + countries)
+selected_country = st.sidebar.selectbox("Select Country", ["All"] + countries)
 
-# Filter competitions based on selected countries
-if "All" in selected_countries or not selected_countries:
-    competitions_filtered = competition_list
-else:
-    competitions_filtered = [comp for comp in competition_list if comp["country_name"] in selected_countries]
 
+competitions_filtered = [comp for comp in competition_list if selected_country == "All" or comp["country_name"] == selected_country]
 competition_names = sorted(set(comp["competition_name"] for comp in competitions_filtered))
-selected_competitions = st.sidebar.multiselect("Select Competition", ["All"] + competition_names)
+selected_competition = st.sidebar.selectbox("Select Competition", ["All"] + competition_names)
+selected_competition_id = next((comp["competition_id"] for comp in competitions_filtered if comp["competition_name"] == selected_competition), None)
 
-# Filter competitions based on selected competitions
-if "All" in selected_competitions or not selected_competitions:
-    competitions_filtered = competitions_filtered
-else:
-    competitions_filtered = [comp for comp in competitions_filtered if comp["competition_name"] in selected_competitions]
-
-# Get the competition IDs for the selected competitions
-selected_competition_ids = [comp["competition_id"] for comp in competitions_filtered if comp["competition_name"] in selected_competitions]
-
-# Get list of seasons for the selected competitions
-seasons_filtered = [comp for comp in competitions_filtered]
+# Get list of seasons for the selected competition
+seasons_filtered = [comp for comp in competitions_filtered if selected_competition == "All" or comp["competition_name"] == selected_competition]
 season_names = sorted(set(comp["season_name"] for comp in seasons_filtered))
-selected_seasons = st.sidebar.multiselect("Select Season", ["All"] + season_names)
+selected_season = st.sidebar.selectbox("Select Season", ["All"] + season_names)
+selected_season_id = next((comp["season_id"] for comp in seasons_filtered if comp["season_name"] == selected_season), None)
 
-# Filter seasons based on selected seasons
-if "All" in selected_seasons or not selected_seasons:
-    seasons_filtered = seasons_filtered
-else:
-    seasons_filtered = [comp for comp in seasons_filtered if comp["season_name"] in selected_seasons]
-
-# Get the season IDs for the selected seasons
-selected_season_ids = [comp["season_id"] for comp in seasons_filtered if comp["season_name"] in selected_seasons]
 
 # Get player statistics for the selected competition and season
-if selected_competition_ids and selected_season_ids:
-    player_stats_data = []
-    for competition_id in selected_competition_ids:
-        for season_id in selected_season_ids:
-            url = f"https://data.statsbomb.com/api/v4/competitions/{competition_id}/seasons/{season_id}/player-stats"
-            player_stats_data.extend(get_resource(url, credentials))
-    df = pd.DataFrame(player_stats_data)
+if selected_competition_id is not None and selected_season_id is not None:
+    url = f"https://data.statsbomb.com/api/v4/competitions/{selected_competition_id}/seasons/{selected_season_id}/player-stats"
+    df = get_resource(url, credentials)
 else:
-    # Fallback to default competition and season if none selected
     url = f"https://data.statsbomb.com/api/v4/competitions/{1211}/seasons/{281}/player-stats"
     df = get_resource(url, credentials)
-    df = pd.DataFrame(df)
-
+df = pd.DataFrame(df)
 
 columns_to_drop = [
     'player_season_average_space_received_in',
@@ -219,50 +193,21 @@ min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_
 
 # Filter the DataFrame based on the selected position group and minimum minutes played
 filtered_players = df[(df['primary_position'].isin(position_mapping[selected_position_group])) & (df['minutes'] >= min_minutes_played)]
-# Add season context to player names
-filtered_players["player_season"] = filtered_players["player_name"] + " (" + filtered_players["season_name"] + ")"
 
-# List of players based on the selected position groups
-players_list = filtered_players["player_season"].unique()
+# List of players based on the selected position group
+players_list = filtered_players["player_name"].unique()
 
-selected_players = st.sidebar.multiselect(
-    "Select Players:",
+Name = st.sidebar.selectbox(
+    "Select the Player:",
     options=players_list,
 )
 
-selected_comparison_players = st.sidebar.multiselect(
-    "Select Comparison Players:",
-    options=["League Average"] + players_list.tolist(),
+Name2 = st.sidebar.selectbox(
+    "Select other Player:",
+    options=["League Average"] +filtered_players["player_name"].unique().tolist(),
 )
 
-# Function to extract player name and season name
-def extract_player_season(player_season_str):
-    player_name, season_name = player_season_str.rsplit(" (", 1)
-    season_name = season_name[:-1]  # Remove the closing parenthesis
-    return player_name, season_name
 
-# Filter the DataFrame based on the selected players and comparison players
-def filter_player_season(df, player_season_str):
-    player_name, season_name = extract_player_season(player_season_str)
-    return df[(df["player_name"] == player_name) & (df["season_name"] == season_name)]
-
-# Get the data for selected players
-selected_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_players])
-
-# Get the data for comparison players (handle "League Average" separately if needed)
-if "League Average" in selected_comparison_players:
-    comparison_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_comparison_players if ps != "League Average"])
-    # Calculate league average if needed
-    league_average_data = df.mean(numeric_only=True)
-    league_average_data["player_name"] = "League Average"
-    comparison_players_data = pd.concat([comparison_players_data, league_average_data.to_frame().T], ignore_index=True)
-else:
-    comparison_players_data = pd.concat([filter_player_season(df, ps) for ps in selected_comparison_players])
-
-# List of players based on the selected position group
-
-Name = selected_players
-Name2 = selected_comparison_players
     
 # List of all available parameters
 all_params = list(df.columns[18:])
