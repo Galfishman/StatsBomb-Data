@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Load the data
-data = pd.read_csv('/Users/galfishman/Desktop/2024-05-24T06-27_export.csv')
+data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
 data.columns = data.columns.str.replace('_', ' ')
 # Round the 'minutes' column
 data['minutes'] = data['minutes'].round()
