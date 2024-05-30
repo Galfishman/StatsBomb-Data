@@ -53,11 +53,15 @@ try:
         player_idx = selected_data[selected_data['player name'] == player].index[0]
 
         # Calculate weighted Euclidean distance
+# Ensure metrics are scaled and weighted appropriately
         scaler = StandardScaler()
         data_scaled = scaler.fit_transform(selected_data[metrics])
-        weighted_data = data_scaled * np.array([weights[metric] for metric in metrics])
-        distances = cdist(weighted_data, [weighted_data[player_idx]], metric='euclidean').flatten()
 
+        # Apply weights with handling of zero values
+        weighted_data = data_scaled * np.array([max(weights[metric], 1e-6) for metric in metrics])
+
+        # Calculate distances
+        distances = cdist(weighted_data, [weighted_data[player_idx]], metric='euclidean').flatten()
         # Get the indices of the most similar players
         similar_indices = distances.argsort()[1:num_similar+1]
 
