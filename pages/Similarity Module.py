@@ -52,8 +52,7 @@ try:
     if player and metrics:
         player_idx = selected_data[selected_data['player name'] == player].index[0]
 
-        # Calculate weighted Euclidean distance
-# Ensure metrics are scaled and weighted appropriately
+        # Ensure metrics are scaled and weighted appropriately
         scaler = StandardScaler()
         data_scaled = scaler.fit_transform(selected_data[metrics])
 
@@ -62,6 +61,7 @@ try:
 
         # Calculate distances
         distances = cdist(weighted_data, [weighted_data[player_idx]], metric='euclidean').flatten()
+
         # Get the indices of the most similar players
         similar_indices = distances.argsort()[1:num_similar+1]
 
