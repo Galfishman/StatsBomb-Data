@@ -137,7 +137,7 @@ def main():
     selected_season = st.sidebar.selectbox("Select Season", ["All"] + season_names)
 
     # Filter by match week
-    selected_match_week = st.sidebar.selectbox("Select Match Week", ["All"] + list(range(1, 36)))
+    selected_match_week = st.sidebar.selectbox("Select Match Week", ["All"] + list(range(1, 40)))
 
     # Filter by team
     teams = []
