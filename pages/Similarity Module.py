@@ -15,7 +15,11 @@ data['minutes'] = data['minutes'].round()
 st.title('Player Similarity Finder')
 
 # Filter by minutes range
-min_minutes, max_minutes = st.sidebar.slider('Filter by Minutes Played:', min_value=int(data['minutes'].min()), max_value=int(data['minutes'].max()), value=(int(data['minutes'].min()), int(data['minutes'].max())), step=1)
+min_minutes, max_minutes = st.sidebar.slider('Filter by Minutes Played:', 
+                                             min_value=int(data['minutes'].min()), 
+                                             max_value=int(data['minutes'].max()), 
+                                             value=(int(data['minutes'].min()), int(data['minutes'].max())), 
+                                             step=1)
 
 # Filter data to include only the selected metrics and within the specified minutes range
 selected_data = data[(data['minutes'] >= min_minutes) & (data['minutes'] <= max_minutes)]
@@ -38,9 +42,6 @@ if metrics:
     for metric in metrics:
         weights[metric] = st.sidebar.slider(f'Weight for {metric}', 0.0, 1.0, 0.5)
 
-# Filter data to include only the selected metrics
-selected_data = selected_data[['player name', 'minutes', 'primary position'] + metrics]
-
 # Handle NaN values by filling them with 0
 selected_data = selected_data.fillna(0)
 
@@ -50,7 +51,8 @@ selected_data['minutes'] = selected_data['minutes'].round()
 # Get the index of the selected player and calculate similarity
 try:
     if player and metrics:
-        player_idx = selected_data[selected_data['player name'] == player].index[0]
+        player_row = selected_data[selected_data['player name'] == player]
+        player_idx = player_row.index[0]
 
         # Ensure metrics are scaled and weighted appropriately
         scaler = StandardScaler()
@@ -59,21 +61,47 @@ try:
         # Apply weights with handling of zero values
         weighted_data = data_scaled * np.array([max(weights[metric], 1e-6) for metric in metrics])
 
+        # Get the primary and secondary positions of the selected player
+        player_primary_position = player_row['primary position'].values[0]
+        player_secondary_position = player_row['secondary position'].values[0] if 'secondary position' in player_row.columns else None
+
+        # Filter data to only include players with the same primary or secondary position
+        if player_secondary_position:
+            position_filtered_data = selected_data[
+                (selected_data['primary position'] == player_primary_position) | 
+                (selected_data['secondary position'] == player_primary_position) |
+                (selected_data['primary position'] == player_secondary_position) |
+                (selected_data['secondary position'] == player_secondary_position)
+            ]
+        else:
+            position_filtered_data = selected_data[
+                (selected_data['primary position'] == player_primary_position) | 
+                (selected_data['secondary position'] == player_primary_position)
+            ]
+        
+        position_filtered_idx = position_filtered_data.index
+
+        # Re-calculate scaled and weighted data for position-filtered data
+        data_scaled_filtered = data_scaled[position_filtered_idx]
+        weighted_data_filtered = weighted_data[position_filtered_idx]
+
         # Calculate distances
-        distances = cdist(weighted_data, [weighted_data[player_idx]], metric='euclidean').flatten()
+        distances = cdist(weighted_data_filtered, [weighted_data_filtered[position_filtered_idx.get_loc(player_idx)]], metric='euclidean').flatten()
 
         # Get the indices of the most similar players
-        similar_indices = distances.argsort()[1:num_similar+1]
+        similar_indices = distances.argsort()[1:num_similar + 1]
 
         # Create a dataframe to display the results
-        similar_players = selected_data.iloc[similar_indices]
+        similar_players = position_filtered_data.iloc[similar_indices]
         similar_players['distance'] = distances[similar_indices]
 
         # Select the columns to display
         display_columns = ['player name', 'minutes', 'primary position', 'distance'] + metrics
+        if 'secondary position' in selected_data.columns:
+            display_columns.append('secondary position')
 
         # Add the chosen player to the top of the table
-        chosen_player_row = selected_data[selected_data['player name'] == player]
+        chosen_player_row = player_row.copy()
         chosen_player_row['distance'] = 0.0  # Chosen player has 0 distance with themselves
         display_df = pd.concat([chosen_player_row[display_columns], similar_players[display_columns]], ignore_index=True)
 
