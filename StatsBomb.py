@@ -237,7 +237,7 @@ def main():
             df=df_event
             tactics =df_tactics
             df_lineup = lineup
-            s
+            
             # Split the data into two teams
         # Extract home team and away team from match details
             home_team_name = selected_match_info["home_team"]
