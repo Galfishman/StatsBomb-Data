@@ -155,7 +155,7 @@ else:
             # Add Google search links as buttons
             st.write("### Google Search Links for Similar Players")
             for player_name in display_df_sorted['player name']:
-                player_url = f"https://www.google.com/search?q={player_name.replace(' ', '+')}+football"
+                player_url = f"https://www.google.com/search?q={player_name.replace(' ', '+')}"
                 if st.button(f'Search {player_name} on Google'):
                     st.write(f"[Search {player_name} on Google]({player_url})")
 
