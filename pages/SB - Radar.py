@@ -85,7 +85,7 @@ else:
                     break
 
             # Filter data to only include players with similar positions
-            position_filtered_data = selected_data[selected_data['primary position'].isin(similar_positions) | selected_data['secondary position'].isin(similar_positions)]
+            position_filtered_data = selected_data[selected_data['primary position'].isin(similar_positions)]
             position_filtered_idx = position_filtered_data.index
 
             # Re-calculate scaled and weighted data for position-filtered data
