@@ -34,11 +34,26 @@ min_minutes, max_minutes = st.sidebar.slider('Filter by Minutes Played:',
 # Filter data to include only the selected metrics and within the specified minutes range
 selected_data = data[(data['minutes'] >= min_minutes) & (data['minutes'] <= max_minutes)]
 
+# Initialize session state for player selection
+if 'selected_player' not in st.session_state:
+    st.session_state.selected_player = None
+
 # Player selection from filtered data
 if selected_data.empty:
     st.warning("No players found within the specified minutes range. Please adjust the filter.")
 else:
-    player = st.selectbox('Select a player:', selected_data['player name'].unique())
+    player_names = selected_data['player name'].unique()
+
+    # Set the default player selection to the previously selected player, if available
+    if st.session_state.selected_player in player_names:
+        default_index = list(player_names).index(st.session_state.selected_player)
+    else:
+        default_index = 0
+
+    player = st.selectbox('Select a player:', player_names, index=default_index)
+
+    # Update session state with the selected player
+    st.session_state.selected_player = player
 
     # Metric selection
     metrics = st.multiselect('Select metrics:', data.columns.tolist()[18:])  # Exclude player_name from metric options
