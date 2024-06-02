@@ -118,10 +118,6 @@ def events(match_id: int) -> list:
     return events_data
 
 
-def lineup (match_id: int) -> list:
-    url = f"https://data.statsbomb.com/api/v4/lineups/{match_id}"
-    lineup_data = get_resource(url, {credentials["user"], credentials["passwd"]})
-    return lineup_data
 
 
 def main():
@@ -236,7 +232,6 @@ def main():
             df_event, df_related, df_freeze, df_tactics = parser.event(match_id)
             df=df_event
             tactics =df_tactics
-            df_lineup = lineup()
             
             # Split the data into two teams
         # Extract home team and away team from match details
