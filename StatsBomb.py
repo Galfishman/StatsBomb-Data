@@ -236,7 +236,7 @@ def main():
             df_event, df_related, df_freeze, df_tactics = parser.event(match_id)
             df=df_event
             tactics =df_tactics
-            df_lineup = lineup
+            df_lineup = lineup()
             
             # Split the data into two teams
         # Extract home team and away team from match details
