@@ -714,7 +714,6 @@ def main():
             st.pyplot(fig)
 
 
-        st.write(df_lineup)
 
 
 
