@@ -1,169 +1,415 @@
-import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from scipy.spatial.distance import cdist
-import numpy as np
 import matplotlib.pyplot as plt
+import streamlit as st
+from soccerplots.radar_chart import Radar
+from mplsoccer import PyPizza
+import matplotlib as mpl
+from io import BytesIO
+from mplsoccer import PyPizza
+import matplotlib as mpl
+import requests as req
+from requests_cache import CachedSession
+from statsbombpy.config import CACHED_CALLS_SECS, HOSTNAME, VERSIONS
+import math
+from scipy import stats
+import os
+import requests
+import matplotlib.pyplot as plt
+from tempfile import mkdtemp
 
-# Load the data
-data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
-data.columns = data.columns.str.replace('_', ' ')
-# Round the 'minutes' column
-data['minutes'] = data['minutes'].round()
 
-# Create Streamlit interface
-st.title('Player Similarity Finder')
+plt.rcParams['font.family'] = 'Liberation Serif'
+plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
 
-# Define position similarity mapping
+# Set your login credentials
+credentials = st.secrets["credentials"]
+# Set your login credentials
+credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.passwd}
+
+# Set environment variables for authentication (optional)
+os.environ['SB_USERNAME'] = credentials['user']
+os.environ['SB_PASSWORD'] = credentials['passwd']
+
+session = CachedSession(cache_name=mkdtemp(), backend="sqlite", expire_after=CACHED_CALLS_SECS)
+
+
+# The first thing we have to do is open the data. We use a parser SBopen available in mplsoccer.
+
+
+def get_resource(url: str, creds: dict) -> list:
+    auth = req.auth.HTTPBasicAuth(credentials["user"], credentials["passwd"])
+    resp = session.get(url, auth=auth)
+    if resp.status_code != 200:
+        print(f"{url} -> {resp.status_code}")
+        resp = []
+    else:
+        resp = resp.json()
+    return resp
+
+def competitions() -> list:
+    url = f"https://data.statsbomb.com/api/v4/competitions"
+    competitions_data = get_resource(url, {credentials["user"], credentials["passwd"]})
+    competition_list = []
+    for comp in competitions_data:
+        competition_dict = {
+            "competition_name": comp["competition_name"],
+            "country_name": comp["country_name"],
+            "competition_id": comp["competition_id"],
+            "season_name": comp["season_name"],
+            "season_id": comp["season_id"]
+        }
+        competition_list.append(competition_dict)
+    return competition_list
+
+def seasons(competition_id: int) -> list:
+    url = f"https://data.statsbomb.com/api/v4/competitions/{competition_id}/seasons"
+    seasons_data = get_resource(url, {credentials["user"], credentials["passwd"]})
+    season_list = []
+    for season in seasons_data:
+        season_dict = {
+            "season_name": season["season_name"],
+            "season_id": season["season_id"]
+        }
+        season_list.append(season_dict)
+    return season_list
+
+# Get list of competitions
+competition_list = competitions()
+countries = sorted(set(comp["country_name"] for comp in competition_list))
+selected_country = st.sidebar.selectbox("Select Country", ["All"] + countries)
+
+
+competitions_filtered = [comp for comp in competition_list if selected_country == "All" or comp["country_name"] == selected_country]
+competition_names = sorted(set(comp["competition_name"] for comp in competitions_filtered))
+selected_competition = st.sidebar.selectbox("Select Competition", ["All"] + competition_names)
+selected_competition_id = next((comp["competition_id"] for comp in competitions_filtered if comp["competition_name"] == selected_competition), None)
+
+# Get list of seasons for the selected competition
+seasons_filtered = [comp for comp in competitions_filtered if selected_competition == "All" or comp["competition_name"] == selected_competition]
+season_names = sorted(set(comp["season_name"] for comp in seasons_filtered))
+selected_season = st.sidebar.selectbox("Select Season", ["All"] + season_names)
+selected_season_id = next((comp["season_id"] for comp in seasons_filtered if comp["season_name"] == selected_season), None)
+
+
+# Get player statistics for the selected competition and season
+if selected_competition_id is not None and selected_season_id is not None:
+    url = f"https://data.statsbomb.com/api/v4/competitions/{selected_competition_id}/seasons/{selected_season_id}/player-stats"
+    df = get_resource(url, credentials)
+else:
+    url = f"https://data.statsbomb.com/api/v4/competitions/{1211}/seasons/{281}/player-stats"
+    df = get_resource(url, credentials)
+df = pd.DataFrame(df)
+
+columns_to_drop = [
+    'player_season_average_space_received_in',
+    'player_season_average_fhalf_space_received_in',
+    'player_season_average_f3_space_received_in',
+    'player_season_ball_receipts_in_space_10_ratio',
+    'player_season_ball_receipts_in_space_2_ratio',
+    'player_season_ball_receipts_in_space_5_ratio',
+    'player_season_fhalf_ball_receipts_in_space_10_ratio',
+    'player_season_fhalf_ball_receipts_in_space_2_ratio',
+    'player_season_fhalf_ball_receipts_in_space_5_ratio',
+    'player_season_f3_ball_receipts_in_space_10_ratio',
+    'player_season_f3_ball_receipts_in_space_2_ratio',
+    'player_season_f3_ball_receipts_in_space_5_ratio',
+    'player_season_lbp_90',
+    'player_season_lbp_completed_90',
+    'player_season_lbp_ratio',
+    'player_season_fhalf_lbp_completed_90',
+    'player_season_fhalf_lbp_ratio',
+    'player_season_f3_lbp_completed_90',
+    'player_season_f3_lbp_ratio',
+    'player_season_fhalf_lbp_90',
+    'player_season_f3_lbp_90',
+    'player_season_obv_lbp_90',
+    'player_season_fhalf_obv_lbp_90',
+    'player_season_f3_obv_lbp_90',
+    'player_season_lbp_pass_ratio',
+    'player_season_fhalf_lbp_pass_ratio',
+    'player_season_f3_lbp_pass_ratio',
+    'player_season_lbp_received_90',
+    'player_season_fhalf_lbp_received_90',
+    'player_season_f3_lbp_received_90',
+    'player_season_average_lbp_to_space_distance',
+    'player_season_fhalf_average_lbp_to_space_distance',
+    'player_season_f3_average_lbp_to_space_distance',
+    'player_season_lbp_to_space_10_received_90',
+    'player_season_fhalf_lbp_to_space_10_received_90',
+    'player_season_f3_lbp_to_space_10_received_90',
+    'player_season_lbp_to_space_2_received_90',
+    'player_season_fhalf_lbp_to_space_2_received_90',
+    'player_season_f3_lbp_to_space_2_received_90',
+    'player_season_lbp_to_space_5_received_90',
+    'player_season_fhalf_lbp_to_space_5_received_90',
+    'player_season_f3_lbp_to_space_5_received_90',
+    'player_season_average_lbp_to_space_received_distance',
+    'player_season_fhalf_average_lbp_to_space_received_distance',
+    'player_season_f3_average_lbp_to_space_received_distance',
+    'player_season_lbp_to_space_10_90',
+    'player_season_fhalf_lbp_to_space_10_90',
+    'player_season_f3_lbp_to_space_10_90',
+    'player_season_lbp_to_space_2_90',
+    'player_season_fhalf_lbp_to_space_2_90',
+    'player_season_f3_lbp_to_space_2_90',
+    'player_season_lbp_to_space_5_90',
+    'player_season_fhalf_lbp_to_space_5_90',
+    'player_season_f3_lbp_to_space_5_90',
+    'player_season_360_minutes',
+    'player_season_xgchain',
+    'player_season_op_xgchain',
+    'player_season_xgbuildup',
+    'player_season_op_xgbuildup'
+]
+
+df = df.drop(columns=columns_to_drop)
+df.columns = df.columns.str.replace('player_season_', '')
+df.columns = df.columns.str.replace('_90', '')
+
+
+###login
+st.title("MTA RADAR StatsBomb Comparison | Data is per 90 min")
+
+# Define the mapping of Short Position to Position 1
 position_mapping = {
-    'Center Backs': ['Centre Back', 'Left Centre Back', 'Right Centre Back'],
-    'Full Backs': ['Left Back', 'Left Wing Back', 'Right Back', 'Right Wing Back'],
-    'Midfielders': ['Left Defensive Midfielder', 'Left Centre Midfielder', 'Centre Attacking Midfielder', 'Centre Defensive Midfielder', 'Left Midfielder', 'Right Centre Midfielder', 'Right Defensive Midfielder', 'Right Midfielder'],
-    'Wingers': ['Left Attacking Midfielder', 'Left Wing', 'Right Attacking Midfielder', 'Right Wing'],
-    'Strikers': ['Centre Forward', 'Left Centre Forward', 'Right Centre Forward'],
-    'GK': ['Goalkeeper']
+    'Center Backs': ['Centre Back','Left Centre Back','Right Centre Back'],
+    'Full Backs': ['Left Back','Left Wing Back','Right Back','Right Wing Back'],
+    'Midfielders': ['Left Defensive Midfielder','Left Centre Midfielder','Centre Attacking Midfielder','Centre Defensive Midfielder','Left Midfielder','Right Centre Midfielder','Right Defensive Midfielder','Right Midfielder'] ,
+    'Wingers': ['Left Attacking Midfielder','Left Wing','Right Attacking Midfielder','Right Wing'],
+    'Strikers':['Centre Forward','Left Centre Forward','Right Centre Forward'],
+    'GK': ['Goalkeeper'],
 }
 
-# Filter by minutes range
-min_minutes, max_minutes = st.sidebar.slider('Filter by Minutes Played:', 
-                                             min_value=int(data['minutes'].min()), 
-                                             max_value=int(data['minutes'].max()), 
-                                             value=(int(data['minutes'].min()), int(data['minutes'].max())), 
-                                             step=1)
+st.sidebar.header("Filter Here:")
 
-# Filter data to include only the selected metrics and within the specified minutes range
-selected_data = data[(data['minutes'] >= min_minutes) & (data['minutes'] <= max_minutes)]
+# Filter by position group
+selected_position_group = st.sidebar.selectbox(
+    "Filter by Position Group:",
+    options=list(position_mapping.keys()),
+)
 
-# Initialize session state for player selection
-if 'selected_player' not in st.session_state:
-    st.session_state.selected_player = None
+# Filter by Minutes Played (Min)
+min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(df['minutes'].max()), step=1, value=500)
 
-# Player selection from filtered data
-if selected_data.empty:
-    st.warning("No players found within the specified minutes range. Please adjust the filter.")
+# Filter the DataFrame based on the selected position group and minimum minutes played
+filtered_players = df[(df['primary_position'].isin(position_mapping[selected_position_group])) & (df['minutes'] >= min_minutes_played)]
+
+# List of players based on the selected position group
+players_list = filtered_players["player_name"].unique()
+
+Name = st.sidebar.selectbox(
+    "Select the Player:",
+    options=players_list,
+)
+
+Name2 = st.sidebar.selectbox(
+    "Select other Player:",
+    options=["League Average"] +filtered_players["player_name"].unique().tolist(),
+)
+
+
+    
+# List of all available parameters
+all_params = list(df.columns[18:])
+
+# Filtered parameters based on user selection
+selected_params = st.sidebar.multiselect(
+    "Select Parameters:",
+    options=all_params,
+    default=("np_xg", "np_shots", "key_passes", "passes_into_box", "touches_inside_box",'defensive_actions','obv'))  # Default value is all_params (all parameters selected)
+
+params = selected_params
+
+with st.expander("Show Players Table"):
+    # Display the DataFrame with only selected parameters
+    selected_columns = ['player_name','team_name','minutes'] + selected_params
+    st.dataframe(filtered_players[selected_columns])
+
+filtered_players.fillna(0, inplace=True)
+
+# add ranges to list of tuple pairs
+ranges = []
+a_values = []
+b_values = []
+
+for x in params:
+    a = min(df[x])
+    a = a - (a * 0.2)
+
+    b = max(df[x])
+    b = b
+
+    ranges.append((a, b))
+
+for _, row in df.iterrows():
+    if row['player_name'] == Name:
+        a_values = row[params].tolist()
+    if row['player_name'] == Name2:
+        b_values = row[params].tolist()
+
+
+if Name2 == "League Average":
+    league_average_values = filtered_players[filtered_players['player_name'] != Name][params].mean().tolist()
+    b_values = league_average_values
+    title_name2 = "League Average"
 else:
-    player_names = selected_data['player name'].unique()
-
-    # Set the default player selection to the previously selected player, if available
-    if st.session_state.selected_player in player_names:
-        default_index = list(player_names).index(st.session_state.selected_player)
+    player2_row = df[df['player_name'] == Name2]
+    if not player2_row.empty:
+        minutes_player2 = round(player2_row['minutes'].values[0])  # Round to nearest whole number
+        Position_name2 = player2_row['primary_position'].values[0]
+        team_name2 = player2_row['team_name'].values[0]
+        b_values = player2_row[params].values[0].tolist()
+        title_name2 = f"{Name2}\n{'Position: ' + Position_name2}\n{'Team:  ' + team_name2}\n{minutes_player2} Minutes Played"
     else:
-        default_index = 0
+        st.error(f"No data available for player: {Name2}")
+        st.stop()
 
-    player = st.selectbox('Select a player:', player_names, index=default_index)
+a_values = a_values[:]
+b_values = b_values[:]
+values = [a_values, b_values]
 
-    # Update session state with the selected player
-    st.session_state.selected_player = player
+# Print values for troubleshooting
+minutes_name = "minutes"
+minutes_player1 = round(filtered_players.loc[filtered_players['player_name'] == Name, minutes_name].values[0])
 
-    # Metric selection
-    metrics = st.multiselect('Select metrics:', data.columns.tolist()[18:])  # Exclude player_name from metric options
+Position_name = "primary_position"
+Position_name1 = filtered_players.loc[filtered_players['player_name'] == Name, Position_name].values[0]
 
-    # Number of similar players
-    num_similar = st.slider('Number of similar players:', 5, 10, 5)
+Team_name = "team_name"
+team_name1 = filtered_players.loc[filtered_players['player_name'] == Name, Team_name].values[0]
 
-    # Initialize dictionary to store weights
-    weights = {}
+# Update the title dictionary with minutes played
+title = dict(
+title_name = f"{Name}\n{'Position: ' +Position_name1} \n{'Team: ' + team_name1}\n{minutes_player1} Minutes Played",
+    title_color='yellow',
+    title_name_2= title_name2,
+    title_color_2='blue',
+    title_fontsize=12,
+)
 
-    # If metrics are selected, show sliders for each metric to assign weights
-    if metrics:
-        st.write("Assign weights to each metric:")
-        for metric in metrics:
-            weights[metric] = st.sidebar.slider(f'Weight for {metric}', 0.0, 1.0, 0.5)
+# RADAR PLOT
+radar = Radar(
+    background_color="#121212",
+    patch_color="#28252C",
+    label_color="#FFFFFF",
+    label_fontsize=10,
+    range_color="#FFFFFF"
+)
 
-    # Handle NaN values by filling them with 0
-    selected_data = selected_data.fillna(0)
+# plot radar
+fig, ax = radar.plot_radar(
+    fig_size = (12,8),
+    ranges=ranges,
+    params=params,
+    values=values,
+    radar_color=['yellow', 'blue'],
+    edgecolor="#222222",
+    zorder=2,
+    linewidth=1,
+    title=title,
+    alphas=[0.4, 0.4],
+    compare=True
+)
 
-    # Round 'minutes' column
-    selected_data['minutes'] = selected_data['minutes'].round()
+mpl.rcParams['figure.dpi'] = 1500
 
-    # Get the index of the selected player and calculate similarity
-    try:
-        if player and metrics:
-            player_row = selected_data[selected_data['player name'] == player]
-            player_idx = player_row.index[0]
 
-            # Ensure metrics are scaled and weighted appropriately
-            scaler = StandardScaler()
-            data_scaled = scaler.fit_transform(selected_data[metrics])
+##########################################
+##########################################
+##########################################
+##########################################
 
-            # Apply weights with handling of zero values
-            weighted_data = data_scaled * np.array([max(weights[metric], 1e-6) for metric in metrics])
 
-            # Get the primary position of the selected player
-            player_primary_position = player_row['primary position'].values[0]
+player_data = filtered_players.loc[filtered_players['player_name'] == Name, selected_params].iloc[0]
+values = [math.floor(stats.percentileofscore(filtered_players[param], player_data[param])) for param in selected_params]
 
-            # Get the positions to include in the comparison based on the mapping
-            similar_positions = []
-            for key, value in position_mapping.items():
-                if player_primary_position in value:
-                    similar_positions = value
-                    break
+# Create a table to display the statistic names and values
+table_data = {'Statistic': selected_params, 'Value': player_data[selected_params]}
+table_df = pd.DataFrame(table_data)
+### PRECEPLIE PIZZA
 
-            # Filter data to only include players with similar positions
-            position_filtered_data = selected_data[selected_data['primary position'].isin(similar_positions)]
-            position_filtered_idx = position_filtered_data.index
+baker = PyPizza(
+    params=params,                  # list of parameters
+    straight_line_color="white",  # color for straight lines
+    straight_line_lw=2,             # linewidth for straight lines
+    last_circle_lw=3,
+    last_circle_color= 'white',                              # linewidth of last circle
+    other_circle_lw=1,   
+    other_circle_color='grey',           # linewidth for other circles
+    other_circle_ls="-."            # linestyle for other circles
+)
 
-            # Re-calculate scaled and weighted data for position-filtered data
-            data_scaled_filtered = data_scaled[position_filtered_idx]
-            weighted_data_filtered = weighted_data[position_filtered_idx]
+fig2, ax2 = baker.make_pizza(
+    values,              # list of values
+    figsize=(12, 8),      # adjust figsize according to your need
+    param_location=105,  # where the parameters will be added
+    kwargs_slices=dict(
+        facecolor="cornflowerblue", edgecolor='white',
+        zorder=2, linewidth=3
+    ),                   # values to be used when plotting slices
+    kwargs_params=dict(
+        color="white", fontsize=10,
+        va="center"
+    ),                   # values to be used when adding parameter
+    kwargs_values=dict(
+        color="white", fontsize=12,
+        zorder=3,
+        bbox=dict(
+            edgecolor="#000000", facecolor="cornflowerblue",
+            boxstyle="round,pad=0.2", lw=1
+        )
+    )                    # values to be used when adding parameter-values
+)
 
-            # Calculate distances
-            distances = cdist(weighted_data_filtered, [weighted_data_filtered[position_filtered_idx.get_loc(player_idx)]], metric='euclidean').flatten()
+# Change background colors
+fig2.patch.set_facecolor('#121212')  # Light grey figure background
+ax2.set_facecolor('#121212')          # Light grey axes background
 
-            # Get the indices of the most similar players
-            similar_indices = distances.argsort()[1:num_similar + 1]
 
-            # Create a dataframe to display the results
-            similar_players = position_filtered_data.iloc[similar_indices]
-            similar_players['distance'] = distances[similar_indices]
+# Calculate the width and height of the title box
+title = f"{Name} Percentile Rank\n{'Compare to all'} {selected_position_group} {'in'} {'Ligat Haal'}"
+title_bbox_props = dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#000000", lw=1)
+# Add the title box
+fig2.text(0.515, 0.97, title, size=18, ha="center", color="#000000", bbox=title_bbox_props)
 
-            # Select the columns to display
-            display_columns = ['player name', 'minutes', 'primary position', 'distance'] + metrics
-            if 'secondary position' in selected_data.columns:
-                display_columns.append('secondary position')
 
-            # Add the chosen player to the top of the table
-            chosen_player_row = player_row.copy()
-            chosen_player_row['distance'] = 0.0  # Chosen player has 0 distance with themselves
-            display_df = pd.concat([chosen_player_row[display_columns], similar_players[display_columns]], ignore_index=True)
 
-            # Sort the dataframe by distance for the bar chart
-            display_df_sorted = display_df.sort_values(by='distance')
+param_value_text = f"{Name}  Values\n"
+for param, value in zip(selected_params, player_data):
+    param_value_text += f"{param} - {value}\n"
 
-            # Display the table with formatted metrics and custom styling
-            st.write("### Similar Players (Transposed)")
-            display_df_transposed = display_df.set_index('player name').transpose()
+# Adjust the vertical position of the param_value_text box based on the number of parameters
+num_params = len(selected_params)
+param_value_y = -0.11 - (num_params * 0.015)  # Adjust the value as needed to control the vertical position
 
-            # Round metrics to 3 decimal places and format as strings without trailing zeros
-            display_df_rounded = display_df_transposed.applymap(lambda x: f'{x:.3f}' if isinstance(x, (int, float)) else x)
 
-            # Styling the table
-            st.write(display_df_rounded.style.set_properties(**{'font-weight': 'bold', 'color': 'white', 'background-color': 'black'}))
+# Display plots side by side with a gap
+col1, col2 = st.columns([1, 1], gap='large') 
+with col1:
+    st.header("Values Radar ")
+    st.pyplot(fig,use_container_width=True)
+with col2:
+    st.header("Percentile Rank")
+    st.pyplot(fig2)
 
-            # Display a bar chart of distances using matplotlib
-            st.write("### Similarity Bar Chart")
-            fig, ax = plt.subplots()
-            ax.bar(display_df_sorted['player name'], display_df_sorted['distance'])
-            ax.set_xlabel('Player Name')
-            ax.set_ylabel('Distance')
-            ax.set_title('Similarity Bar Chart')
-            ax.tick_params(axis='x', rotation=45)
-            ax.text(0.5, 0.96, 'Least is more similar', transform=ax.transAxes, ha='center')
 
-            st.pyplot(fig)
 
-            # Add Google search links as buttons
-            st.write("### Google Search Links for Similar Players")
-            for player_name in display_df_sorted['player name']:
-                player_url = f"https://www.google.com/search?q={player_name.replace(' ', '+')}+football"
-                if st.button(f'Search {player_name} on Google'):
-                    st.write(f"[Search {player_name} on Google]({player_url})")
 
-    except IndexError:
-        st.warning(f"The selected player '{player}' is not found in the filtered data. Please adjust the filter or select another player.")
 
-    if not player:
-        st.warning('Please select a player.')
 
-    if not metrics:
-        st.warning('Please select metrics.')
+head_to_head_df = pd.DataFrame({
+    'Player': [Name, Name2],
+    **{param: [a_values[i], b_values[i]] for i, param in enumerate(params)}
+})
+
+# Transpose the DataFrame to have parameters as rows
+head_to_head_df_transposed = head_to_head_df.set_index('Player').T
+
+# Identify the highest value for each parameter across both players
+max_values = head_to_head_df_transposed.max()
+
+# Highlight the highest value in each row across both players
+highlighted_df = head_to_head_df_transposed.style.format("{:.2f}").apply(lambda row: ['background-color: grey' if val == row.max() else '' for val in row], axis=1)
+
+st.header("Head-to-Head Comparison")
+st.table(highlighted_df)
