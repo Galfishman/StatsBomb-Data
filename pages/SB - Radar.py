@@ -100,7 +100,7 @@ else:
                     break
 
             # Filter data to only include players with similar positions
-            position_filtered_data = selected_data[selected_data['primary position'].isin(similar_positions)]
+            position_filtered_data = selected_data[selected_data['primary position'].isin(similar_positions) | selected_data['secondary position'].isin(similar_positions)]
             position_filtered_idx = position_filtered_data.index
 
             # Re-calculate scaled and weighted data for position-filtered data
@@ -151,6 +151,12 @@ else:
             ax.text(0.5, 0.96, 'Least is more similar', transform=ax.transAxes, ha='center')
 
             st.pyplot(fig)
+
+            # Add Google search links
+            st.write("### Google Search Links for Similar Players")
+            for player_name in display_df_sorted['player name']:
+                player_url = f"https://www.google.com/search?q={player_name.replace(' ', '+')}+football"
+                st.markdown(f"[{player_name}]({player_url})")
 
     except IndexError:
         st.warning(f"The selected player '{player}' is not found in the filtered data. Please adjust the filter or select another player.")
