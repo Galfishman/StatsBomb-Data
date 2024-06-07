@@ -66,7 +66,7 @@ else:
             return all_scores_df
 
         # Calculate scores for each pair
-        pair_scores_df = display_pair_scores(filtered_data, player_pairs, selected_metrics)
+        pair_scores_df = display_pair_scores(player_pairs,filtered_data, selected_metrics)
 
         # Display the scores and ranks
         st.write(pair_scores_df)
