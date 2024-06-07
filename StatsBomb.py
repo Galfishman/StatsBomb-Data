@@ -713,16 +713,7 @@ def main():
 
             st.pyplot(fig)
 
-
-
-
-
-
-
 # players_df = players_df [['player_name','team_name','minutes','touches','passes','passing_ratio','goals','np_xg','np_shots','xa','assists','key_passes','passes_into_box','dribbles','defensive_actions','ball_recoveries','counterpressures','pressures','pressure_regains']]
-
-
-
 
 if __name__ == "__main__":
     main()
