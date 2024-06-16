@@ -66,6 +66,9 @@ else:
             # Sort by rank sum (ascending) and total score (descending)
             all_scores_df = all_scores_df.sort_values(by=['Rank_Sum', 'Total'], ascending=[True, False]).reset_index(drop=True)
 
+            # Drop the 'Total' column
+            all_scores_df = all_scores_df.drop(columns=['Total'])
+
             return all_scores_df
 
         # Calculate scores for each pair
@@ -77,6 +80,6 @@ else:
         # Find the best pair
         best_pair_row = pair_scores_df.iloc[0]
         best_pair = best_pair_row['Pair']
-        st.write(f"The best pair is {best_pair} with a rank sum of {best_pair_row['Rank_Sum']} and a total score of {best_pair_row['Total']}")
+        st.write(f"The best pair is {best_pair} with a rank sum of {best_pair_row['Rank_Sum']}")
     else:
         st.warning("Please select at least one metric.")
