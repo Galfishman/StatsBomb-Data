@@ -12,7 +12,12 @@ st.title("Players Pair")
 st.markdown("""
 **Note:** I suggest not selecting overlapping metrics. The algorithm ranks player pairs by their rank in each metric, so it's unnecessary to select multiple metrics for the same action. For example, for Dribbling, I suggest picking either Dribble or Carry, not both.
 """)
+# Sidebar for league selection
+leagues = data['league_name'].unique().tolist()
+selected_leagues = st.sidebar.multiselect("Select Leagues", options=leagues, default=leagues)
 
+# Filter data by selected leagues
+data = data[data['league_name'].isin(selected_leagues)]
 # Filter data by minimum minutes played
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(data['minutes'].max()), step=1, value=500)
 data = data[(data['minutes'] >= min_minutes_played)]
