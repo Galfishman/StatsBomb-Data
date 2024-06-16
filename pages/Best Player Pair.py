@@ -8,16 +8,18 @@ from itertools import combinations
 data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
 
 # Streamlit app title and description
-st.title("Players Pair")
+st.title("Players Pair or Trio")
 st.markdown("""
-**Note:** I suggest not selecting overlapping metrics. The algorithm ranks player pairs by their rank in each metric, so it's unnecessary to select multiple metrics for the same action. For example, for Dribbling, I suggest picking either Dribble or Carry, not both.
+**Note:** I suggest not selecting overlapping metrics. The algorithm ranks player pairs or trios by their rank in each metric, so it's unnecessary to select multiple metrics for the same action. For example, for Dribbling, I suggest picking either Dribble or Carry, not both.
 """)
+
 # Sidebar for league selection
 leagues = data['competition_name'].unique().tolist()
 selected_leagues = st.sidebar.multiselect("Select Leagues", options=leagues, default=leagues)
 
 # Filter data by selected leagues
 data = data[data['competition_name'].isin(selected_leagues)]
+
 # Filter data by minimum minutes played
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(data['minutes'].max()), step=1, value=500)
 data = data[(data['minutes'] >= min_minutes_played)]
@@ -27,9 +29,12 @@ data['player_team'] = data['player_name'] + ' - ' + data['team_name']
 players = st.multiselect("Select Players", options=data['player_team'].unique())
 
 # Validate player selection
-if len(players) < 3 or len(players) > 6:
-    st.error("Please select between 3 and 6 players.")
+if len(players) < 3:
+    st.error("Please select at least 3 players.")
 else:
+    # Option to choose pairs or trios
+    selection_type = st.sidebar.radio("Select Pair or Trio", options=["Pair", "Trio"])
+
     # List of metrics to choose from (excluding the first 18 columns)
     metrics = data.columns[18:].tolist()
 
@@ -42,29 +47,33 @@ else:
 
         st.write(filtered_data)
 
-        # Create pairwise combinations of players
-        player_pairs = list(combinations(players, 2))
+        # Create combinations of players based on selection type
+        if selection_type == "Pair":
+            player_combinations = list(combinations(players, 2))
+        else:
+            player_combinations = list(combinations(players, 3))
 
-        # Function to calculate and display scores for each pair
-        def display_pair_scores(df, pairs, metrics):
-            pair_scores = []
-            for pair in pairs:
-                pair_data = df[df['player_team'].isin(pair)]
-                scores = pair_data[metrics].sum()
+        # Function to calculate and display scores for each combination
+        def display_combination_scores(df, combinations, metrics):
+            combination_scores = []
+            for combination in combinations:
+                combination_data = df[df['player_team'].isin(combination)]
+                scores = combination_data[metrics].sum()
                 scores_df = pd.DataFrame(scores).T
-                scores_df['Pair'] = f"{pair[0]} & {pair[1]}"
+                combination_names = " & ".join(combination)
+                scores_df['Combination'] = combination_names
                 total_score = scores.sum()
                 scores_df['Total'] = total_score
-                pair_scores.append(scores_df)
+                combination_scores.append(scores_df)
 
             # Concatenate all scores into a single DataFrame
-            all_scores_df = pd.concat(pair_scores, ignore_index=True)
+            all_scores_df = pd.concat(combination_scores, ignore_index=True)
 
             # Rank each metric
             for metric in metrics:
                 all_scores_df[f"{metric}_rank"] = all_scores_df[metric].rank(ascending=False, method='min')
 
-            # Calculate the rank sum for each pair
+            # Calculate the rank sum for each combination
             rank_columns = [f"{metric}_rank" for metric in metrics]
             all_scores_df['Rank_Sum'] = all_scores_df[rank_columns].sum(axis=1)
 
@@ -76,15 +85,15 @@ else:
 
             return all_scores_df
 
-        # Calculate scores for each pair
-        pair_scores_df = display_pair_scores(filtered_data, player_pairs, selected_metrics)
+        # Calculate scores for each combination
+        combination_scores_df = display_combination_scores(filtered_data, player_combinations, selected_metrics)
 
         # Display the scores and ranks
-        st.write(pair_scores_df)
+        st.write(combination_scores_df)
 
-        # Find the best pair
-        best_pair_row = pair_scores_df.iloc[0]
-        best_pair = best_pair_row['Pair']
-        st.write(f"The best pair is {best_pair} with a rank sum of {best_pair_row['Rank_Sum']}")
+        # Find the best combination
+        best_combination_row = combination_scores_df.iloc[0]
+        best_combination = best_combination_row['Combination']
+        st.write(f"The best combination is {best_combination} with a rank sum of {best_combination_row['Rank_Sum']}")
     else:
         st.warning("Please select at least one metric.")
