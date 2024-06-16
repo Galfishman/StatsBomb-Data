@@ -14,11 +14,11 @@ st.markdown("""
 """)
 
 # Sidebar for league selection
-leagues = data['competition_name'].unique().tolist()
+leagues = data['league_name'].unique().tolist()
 selected_leagues = st.sidebar.multiselect("Select Leagues", options=leagues, default=leagues)
 
 # Filter data by selected leagues
-data = data[data['competition_name'].isin(selected_leagues)]
+data = data[data['league_name'].isin(selected_leagues)]
 
 # Filter data by minimum minutes played
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(data['minutes'].max()), step=1, value=500)
@@ -58,12 +58,10 @@ else:
             combination_scores = []
             for combination in combinations:
                 combination_data = df[df['player_team'].isin(combination)]
-                scores = combination_data[metrics].sum()
+                scores = combination_data[metrics].mean()
                 scores_df = pd.DataFrame(scores).T
                 combination_names = " & ".join(combination)
                 scores_df['Combination'] = combination_names
-                total_score = scores.sum()
-                scores_df['Total'] = total_score
                 combination_scores.append(scores_df)
 
             # Concatenate all scores into a single DataFrame
@@ -77,11 +75,8 @@ else:
             rank_columns = [f"{metric}_rank" for metric in metrics]
             all_scores_df['Rank_Sum'] = all_scores_df[rank_columns].sum(axis=1)
 
-            # Sort by rank sum (ascending) and total score (descending)
-            all_scores_df = all_scores_df.sort_values(by=['Rank_Sum', 'Total'], ascending=[True, False]).reset_index(drop=True)
-
-            # Drop the 'Total' column
-            all_scores_df = all_scores_df.drop(columns=['Total'])
+            # Sort by rank sum (ascending)
+            all_scores_df = all_scores_df.sort_values(by='Rank_Sum', ascending=True).reset_index(drop=True)
 
             return all_scores_df
 
