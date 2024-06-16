@@ -4,19 +4,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
 
+# Load data
 data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
 
-
+# Streamlit app title and description
 st.title("Players Pair")
-st.markdown("**Note:** I suggeest to not select a metrics that will over lap. Becuause the algoritm work on rank the players pairs by thier rank in each metric, so we dont need to select some metric to one actions. (For Example for Dribbling i suggeest picking Obv for Dribble and Carry.)")
+st.markdown("""
+**Note:** I suggest not selecting overlapping metrics. The algorithm ranks player pairs by their rank in each metric, so it's unnecessary to select multiple metrics for the same action. For example, for Dribbling, I suggest picking either Dribble or Carry, not both.
+""")
 
+# Filter data by minimum minutes played
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(data['minutes'].max()), step=1, value=500)
 data = data[(data['minutes'] >= min_minutes_played)]
 data['player_team'] = data['player_name'] + ' - ' + data['team_name']
 
 # Create player selection
 players = st.multiselect("Select Players", options=data['player_team'].unique())
-# Optional: Split the selected values back into player_name and team_name if needed
 
 # Validate player selection
 if len(players) < 3 or len(players) > 6:
