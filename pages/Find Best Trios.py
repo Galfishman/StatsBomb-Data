@@ -40,7 +40,7 @@ selected_positions = st.sidebar.multiselect("Select Positions", options=position
 
 # Filter data by selected positions
 selected_position_values = [pos for group in selected_positions for pos in position_mapping[group]]
-data = data[data['position_name'].isin(selected_position_values)]
+data = data[data['primary_position'].isin(selected_position_values)]
 data['player_team'] = data['player_name'] + ' - ' + data['team_name']
 
 # Option to choose pairs or trios
