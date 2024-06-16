@@ -14,11 +14,11 @@ st.markdown("""
 """)
 
 # Sidebar for league selection
-leagues = data['league_name'].unique().tolist()
+leagues = data['competition_name'].unique().tolist()
 selected_leagues = st.sidebar.multiselect("Select Leagues", options=leagues, default=leagues)
 
 # Filter data by selected leagues
-data = data[data['league_name'].isin(selected_leagues)]
+data = data[data['competition_name'].isin(selected_leagues)]
 
 # Filter data by minimum minutes played
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(data['minutes'].max()), step=1, value=500)
