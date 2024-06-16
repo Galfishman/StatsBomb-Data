@@ -14,7 +14,7 @@ st.markdown("""
 """)
 # Sidebar for league selection
 leagues = data['competition_name'].unique().tolist()
-selected_leagues = st.sidebar.selectbox("Select Leagues", options=leagues, default=leagues)
+selected_leagues = st.sidebar.multiselect("Select Leagues", options=leagues, default=leagues)
 
 # Filter data by selected leagues
 data = data[data['competition_name'].isin(selected_leagues)]
