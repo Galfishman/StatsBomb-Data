@@ -1,27 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from itertools import combinations
-import openai
-
-# Set your OpenAI API key from Streamlit secrets
-openai.api_key = st.secrets["openai"]
 
 # Load data
 data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
-
-# Test OpenAI API connection
-try:
-    test_response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Test the OpenAI API connection."}
-        ]
-    )
-    st.write("OpenAI API connection successful.")
-except Exception as e:
-    st.error(f"Failed to connect to OpenAI API: {e}")
 
 # Streamlit app title and description
 st.title("Players Pair or Trio")
@@ -96,21 +80,6 @@ else:
 
             return all_scores_df
 
-        # Function to generate GPT-4 explanations
-        def generate_gpt_explanation(combination, metrics, scores, ranks):
-            prompt = f"Explain why the combination {combination} is ranked as it is. Here are the metrics and their scores: "
-            for metric, score, rank in zip(metrics, scores, ranks):
-                prompt += f"\n{metric}: score {score:.2f}, rank {rank}"
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant that provides explanations for soccer player performance metrics."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=150
-            )
-            return response.choices[0].message['content']
-
         # Calculate scores for each combination
         combination_scores_df = display_combination_scores(filtered_data, player_combinations, selected_metrics)
 
@@ -120,13 +89,6 @@ else:
         # Find the best combination
         best_combination_row = combination_scores_df.iloc[0]
         best_combination = best_combination_row['Combination']
-        st.write(f"### The best combination is {best_combination} with a rank sum of {best_combination_row['Rank_Sum']}")
-
-        # Generate and display GPT-4 explanations for the best combination
-        scores = best_combination_row[selected_metrics].values
-        ranks = best_combination_row[[f"{metric}_rank" for metric in selected_metrics]].values
-        explanation = generate_gpt_explanation(best_combination, selected_metrics, scores, ranks)
-        st.write(f"### Explanation: {explanation}")
-
+        st.write(f"The best combination is {best_combination} with a rank sum of {best_combination_row['Rank_Sum']}")
     else:
         st.warning("Please select at least one metric.")
