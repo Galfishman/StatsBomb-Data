@@ -18,6 +18,7 @@ import matplotlib.patheffects as pe
 from matplotlib.legend_handler import HandlerLine2D
 from matplotlib.patches import FancyArrowPatch
 from mplsoccer.pitch import VerticalPitch
+import streamlit_authenticator as stauth
 from adjustText import adjust_text
 import matplotlib.colors as mcolors
 import matplotlib.patheffects as pe
