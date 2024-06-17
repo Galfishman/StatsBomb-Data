@@ -49,7 +49,11 @@ credentials = st.secrets["credentials"]
 password = st.secrets["pass"]["pass"]
 
 # Define a single password (hashed for security)
-hashed_password = stauth.Hasher([password]).generate()[0]
+try:
+    hashed_password = stauth.Hasher([password]).generate()[0]
+except Exception as e:
+    st.error(f"Error hashing password: {e}")
+    st.stop()
 
 # Configuration for the authenticator
 config = {
