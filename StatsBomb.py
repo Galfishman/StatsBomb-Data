@@ -45,42 +45,6 @@ plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
 credentials = st.secrets["credentials"]
 
 
-# Load password from Streamlit secrets
-password = st.secrets["pass"]["pass"]
-
-# Define a single password (hashed for security)
-try:
-    hashed_password = stauth.Hasher([password]).generate()[0]
-except Exception as e:
-    st.error(f"Error hashing password: {e}")
-    st.stop()
-
-# Configuration for the authenticator
-config = {
-    'credentials': {
-        'usernames': {
-            'user': {
-                'name': 'User',
-                'password': hashed_password
-            }
-        }
-    },
-    'cookie': {
-        'expiry_days': 1,
-        'key': 'some_random_key',
-        'name': 'some_random_cookie_name'
-    },
-    'preauthorized': []
-}
-
-# Create the authenticator object
-authenticator = stauth.Authenticate(
-    config['credentials'],
-    config['cookie']['name'],
-    config['cookie']['key'],
-    config['cookie']['expiry_days']
-)
-
 # Set your login credentials
 credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.passwd}
 
