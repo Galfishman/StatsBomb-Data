@@ -1,6 +1,7 @@
 appnope==0.1.3
 argon2-cffi==21.3.0
 argon2-cffi-bindings==21.2.0
+streamlit-authenticator==0.3.2
 asttokens==2.0.5
 attrs==23.2.0
 backcall==0.2.0
