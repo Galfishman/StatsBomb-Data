@@ -3,9 +3,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import combinations
+import openai
+
+
+
+key = st.secrets["openai"]
 
 # Load data
 data = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/main/pages/2024-05-24T06-27_export.csv')
+
+# Set your OpenAI API key
+openai.api_key = key
 
 # Streamlit app title and description
 st.title("Players Pair or Trio")
@@ -80,6 +88,18 @@ else:
 
             return all_scores_df
 
+        # Function to generate GPT-4 explanations
+        def generate_gpt_explanation(combination, metrics, scores, ranks):
+            prompt = f"Explain why the combination {combination} is ranked as it is. Here are the metrics and their scores: "
+            for metric, score, rank in zip(metrics, scores, ranks):
+                prompt += f"\n{metric}: score {score:.2f}, rank {rank}"
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=prompt,
+                max_tokens=150
+            )
+            return response.choices[0].text.strip()
+
         # Calculate scores for each combination
         combination_scores_df = display_combination_scores(filtered_data, player_combinations, selected_metrics)
 
@@ -89,6 +109,13 @@ else:
         # Find the best combination
         best_combination_row = combination_scores_df.iloc[0]
         best_combination = best_combination_row['Combination']
-        st.write(f"The best combination is {best_combination} with a rank sum of {best_combination_row['Rank_Sum']}")
+        st.write(f"### The best combination is {best_combination} with a rank sum of {best_combination_row['Rank_Sum']}")
+
+        # Generate and display GPT-4 explanations for the best combination
+        scores = best_combination_row[selected_metrics].values
+        ranks = best_combination_row[[f"{metric}_rank" for metric in selected_metrics]].values
+        explanation = generate_gpt_explanation(best_combination, selected_metrics, scores, ranks)
+        st.write(f"### Explanation: {explanation}")
+
     else:
         st.warning("Please select at least one metric.")
