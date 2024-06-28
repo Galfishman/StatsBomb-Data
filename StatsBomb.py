@@ -37,6 +37,9 @@ import matplotlib.pyplot as plt  # Import matplotlib
 from plottable.table import Table, ColumnDefinition
 import os
 from matplotlib import patches
+import streamlit_authenticator as stauth  # pip install streamlit-authenticator
+import pickle
+from pathlib import Path
 
 
 
