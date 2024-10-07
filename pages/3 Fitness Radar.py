@@ -21,6 +21,7 @@ st.title("Fitness Radar (Data Shown from all matches)")
 # READ DATA
 df = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/refs/heads/main/pages/InVenue%20Fitness.csv')
 
+
 # Define the mapping of Short Position to Position 1
 position_mapping = {
     'Center Backs': ['Right Centre Back', 'Left Centre Back', 'Central Defender'],
