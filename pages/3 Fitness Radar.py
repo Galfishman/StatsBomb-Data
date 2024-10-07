@@ -19,7 +19,7 @@ from scipy import stats
 st.title("Fitness Radar (Data Shown from all matches)")
 
 # READ DATA
-df = pd.read_csv('InVenue Fitness.csv')
+df = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/refs/heads/main/pages/InVenue%20Fitness.csv')
 
 # Define the mapping of Short Position to Position 1
 position_mapping = {
