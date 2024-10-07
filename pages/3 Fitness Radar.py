@@ -19,7 +19,7 @@ from scipy import stats
 st.title("MTA RADAR Comparison Data is per 90 min")
 
 # READ DATA
-df = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/refs/heads/main/InVenue%20Fitness.csv')
+df = pd.read_csv('https://github.com/Galfishman/StatsBomb-Data/blob/main/InVenue%20Fitness.csv')
 
 # Define the mapping of Short Position to Position 1
 position_mapping = {
