@@ -21,6 +21,7 @@ from matplotlib.patches import FancyArrowPatch
 from mplsoccer.pitch import VerticalPitch
 import streamlit_authenticator as stauth
 from adjustText import adjust_text
+from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.colors as mcolors
 import matplotlib.patheffects as pe
 from matplotlib.ticker import MaxNLocator, FuncFormatter
