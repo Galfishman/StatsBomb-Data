@@ -90,10 +90,10 @@ else:
 params = selected_params
 
 
-with st.expander("Show Players Table"):
-    # Display the DataFrame with only selected parameters
-    selected_columns = ['Player','Team','Minutes played'] + selected_params
-    st.dataframe(filtered_players[selected_columns])
+# with st.expander("Show Players Table"):
+#     # Display the DataFrame with only selected parameters
+#     selected_columns = ['Player','Team','Minutes played'] + selected_params
+#     st.dataframe(filtered_players[selected_columns])
 
 
 # add ranges to list of tuple pairs
