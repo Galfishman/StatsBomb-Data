@@ -16,7 +16,7 @@ from scipy import stats
 
 
 ###login
-st.title("Fitness Radar (Data Shown from all matches)")
+st.title("Leumit Radar")
 
 # READ DATA
 df = pd.read_csv('https://raw.githubusercontent.com/Galfishman/StatsBomb-Data/refs/heads/main/pages/Players%20Total.csv')
@@ -62,13 +62,33 @@ Name2 = st.sidebar.selectbox(
 # List of all available parameters
 all_params = list(df.columns[10:])
 
-# Filtered parameters based on user selection
-selected_params = st.sidebar.multiselect(
-    "Select Parameters:",
-    options=all_params,
-    default=("Goals", "Assists", "Shots", "Shots on target", "Key passes"))  # Default value is all_params (all parameters selected)
+# Define preset parameters
+attacking_params = [
+    "Goals", "Assists", "Shots", "Shots on target", "Key passes",
+    "Crosses", "Crosses accurate", "Passes into the penalty area",
+    "Dribbles", "Dribbles successful", "xG", "Lost balls", "xA",
+    "Progressive passes"
+]
+defensive_params = [
+    "Defensive challenges", "Ball recoveries",
+    "Ball recoveries in opponent half", "Challenges won, %"
+]
+
+# Button selection for radar type
+st.sidebar.subheader("Choose Radar Type:")
+radar_type = st.sidebar.radio("Select Radar Type:", ["Attacking Radar", "Defensive Radar", "Create New Radar"])
+
+# Select parameters based on radar type
+if radar_type == "Attacking Radar":
+    selected_params = attacking_params
+elif radar_type == "Defensive Radar":
+    selected_params = defensive_params
+else:
+    all_params = list(df.columns[10:])
+    selected_params = st.sidebar.multiselect("Select Parameters:", options=all_params, default=attacking_params)
 
 params = selected_params
+
 
 with st.expander("Show Players Table"):
     # Display the DataFrame with only selected parameters
