@@ -71,7 +71,7 @@ attacking_params = [
 ]
 defensive_params = [
     "Defensive challenges", "Ball recoveries",
-    "Ball recoveries in opponent half", "Challenges won, %"
+    "Ball recoveries in opponent's half", "Challenges won, %"
 ]
 
 # Button selection for radar type
