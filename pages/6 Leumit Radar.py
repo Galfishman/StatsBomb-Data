@@ -65,7 +65,7 @@ all_params = list(df.columns[10:])
 # Define preset parameters
 attacking_params = [
     "Goals", "Assists", "Shots", "Shots on target", "Key passes",
-    "Crosses", "Crosses accurate", "Passes into the penalty area",
+    "Crosses", "Crosses accurate", "Passes into the penalty box",
     "Dribbles", "Dribbles successful", "xG", "Lost balls", "xA",
     "Progressive passes"
 ]
