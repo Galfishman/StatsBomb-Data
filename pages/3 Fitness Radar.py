@@ -99,7 +99,7 @@ for _, row in df.iterrows():
 
 
 if Name2 == "League Average":
-    league_average_values = filtered_players[filtered_players['Player'] != Name][params].mean().tolist()
+    league_average_values = filtered_players[filtered_players['Player'] != Name][selected_params].mean().tolist()
     b_values = league_average_values
     title_name2 = "League Average"
 else:
