@@ -31,7 +31,7 @@ position_mapping = {
     'Strikers': ['Second Striker', 'Centre Forward'],
     'GK': ['Goalkeeper'],
 }
-
+df['TopSpeed'] = df['TopSpeed'] * 3.6
 st.sidebar.header("Please Filter Here:")
 # Filter by position group
 selected_position_group = st.sidebar.selectbox(
