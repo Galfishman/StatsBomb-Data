@@ -38,7 +38,6 @@ selected_position_group = st.sidebar.selectbox(
     "Filter by Position Group:",
     options=list(position_mapping.keys()),
 )
-df['TopSpeed'] = df['TopSpeed'] * 3.6
 
 # Filter by Minutes Played (Min)
 min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(df['Min'].max()), step=1, value=0)
