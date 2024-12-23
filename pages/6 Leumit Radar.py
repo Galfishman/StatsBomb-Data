@@ -91,9 +91,6 @@ else:
     selected_params = st.sidebar.multiselect("Select Parameters:", options=all_params, default=attacking_params)
 
 params = selected_params
-
-
-# Add a toggle to select between Total or Per 90 metrics
 st.sidebar.subheader("Metric Type:")
 metric_type = st.sidebar.radio("Select Metric Type:", ["Total", "Per 90"])
 
@@ -112,85 +109,31 @@ else:
 # Re-filter the data
 filtered_players = df[(df['Position'].isin(position_mapping[selected_position_group])) & (df['Minutes played'] >= min_minutes_played)]
 
-# Recalculate values for radar plot and percentile rank
-a_values = []
-b_values = []
-
-for _, row in df.iterrows():
-    if row['Player'] == Name:
-        a_values = row[params].tolist()
-    if row['Player'] == Name2:
-        b_values = row[params].tolist()
-
-if Name2 == "League Average":
-    league_average_values = filtered_players[filtered_players['Player'] != Name][params].mean().tolist()
-    b_values = league_average_values
-
-# Update radar chart and percentile rank
-player_data = filtered_players.loc[filtered_players['Player'] == Name, params].iloc[0]
-values = [math.floor(stats.percentileofscore(filtered_players[param], player_data[param])) for param in params]
-
-# Recalculate table for head-to-head comparison
-head_to_head_df = pd.DataFrame({
-    'Player': [Name, Name2],
-    **{param: [a_values[i], b_values[i]] for i, param in enumerate(params)}
-})
-head_to_head_df_transposed = head_to_head_df.set_index('Player').T
-max_values = head_to_head_df_transposed.max()
-highlighted_df = head_to_head_df_transposed.style.format("{:.2f}").apply(lambda row: ['background-color: grey' if val == row.max() else '' for val in row], axis=1)
-
-# Update the percentile rank pizza chart values
-values = [math.floor(stats.percentileofscore(filtered_players[param], player_data[param])) for param in params]
-
-
-# with st.expander("Show Players Table"):
-#     # Display the DataFrame with only selected parameters
-#     selected_columns = ['Player','Team','Minutes played'] + selected_params
-#     st.dataframe(filtered_players[selected_columns])
-
-
-# add ranges to list of tuple pairs
+# Calculate ranges dynamically based on metric type
 ranges = []
-a_values = []
-b_values = []
+for param in params:
+    if metric_type == "Per 90":
+        # Use only players who played enough minutes to avoid dividing by very small numbers
+        valid_values = filtered_players[param].dropna()
+    else:
+        valid_values = df[param].dropna()
+    
+    # Determine the range based on valid values
+    param_min = valid_values.min()
+    param_max = valid_values.max()
+    
+    ranges.append((param_min, param_max))
 
-for x in params:
-    a = min(df[x])
-    a = a
-
-    b = max(df[x])
-    b = b
-
-    ranges.append((a, b))
-
-for _, row in df.iterrows():
-    if row['Player'] == Name:
-        a_values = row[params].tolist()
-    if row['Player'] == Name2:
-        b_values = row[params].tolist()
-
+# Recalculate a_values and b_values based on the selected metric type
+a_values = filtered_players.loc[filtered_players['Player'] == Name, params].values.flatten().tolist()
 
 if Name2 == "League Average":
     league_average_values = filtered_players[filtered_players['Player'] != Name][params].mean().tolist()
     b_values = league_average_values
-    title_name2 = "League Average"
 else:
-    player2_row = df[df['Player'] == Name2]
-    if not player2_row.empty:
-        minutes_player2 = player2_row['Minutes played'].values[0]
-        Position_name2 = player2_row['Position'].values[0]
-        team_name2 = player2_row['Team'].values[0]
-        b_values = player2_row[params].values[0].tolist()
-        title_name2 = f"{Name2}\n{'Position: ' + Position_name2}\n{'Team:  ' + team_name2}\n{minutes_player2} Minutes Played"
-    else:
-        st.error(f"No data available for player: {Name2}")
-        st.stop()
+    b_values = filtered_players.loc[filtered_players['Player'] == Name2, params].values.flatten().tolist()
 
-a_values = a_values[:]
-b_values = b_values[:]
-values = [a_values, b_values]
-
-# Print values for troubleshooting
+# Update the title dictionary with minutes played
 minutes_name = "Minutes played"
 minutes_player1 = filtered_players.loc[filtered_players['Player'] == Name, minutes_name].values[0]
 
@@ -200,11 +143,10 @@ Position_name1 = filtered_players.loc[filtered_players['Player'] == Name, Positi
 Team_name = "Team"
 team_name1 = filtered_players.loc[filtered_players['Player'] == Name, Team_name].values[0]
 
-# Update the title dictionary with minutes played
 title = dict(
     title_name=f"{Name}\n{'Team: ' + team_name1}\n{Position_name1}\n{minutes_player1} Minutes Played",
     title_color='yellow',
-    title_name_2= title_name2,
+    title_name_2=f"{Name2 if Name2 != 'League Average' else 'League Average'}",
     title_color_2='blue',
     title_fontsize=12,
 )
@@ -222,7 +164,7 @@ radar = Radar(
 fig, ax = radar.plot_radar(
     ranges=ranges,
     params=params,
-    values=values,
+    values=[a_values, b_values],
     radar_color=['yellow', 'blue'],
     edgecolor="#222222",
     zorder=2,
