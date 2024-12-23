@@ -47,6 +47,9 @@ filtered_players = df[(df['Position'].isin(position_mapping[selected_position_gr
 # List of players based on the selected position group
 players_list = filtered_players["Player"].unique()
 
+
+
+
 Name = st.sidebar.selectbox(
     "Select the Player:",
     options=players_list,
@@ -88,6 +91,56 @@ else:
     selected_params = st.sidebar.multiselect("Select Parameters:", options=all_params, default=attacking_params)
 
 params = selected_params
+
+
+# Add a toggle to select between Total or Per 90 metrics
+st.sidebar.subheader("Metric Type:")
+metric_type = st.sidebar.radio("Select Metric Type:", ["Total", "Per 90"])
+
+# Adjust parameters based on the selected metric type
+if metric_type == "Per 90":
+    # Compute per 90 values
+    for param in df.columns[10:]:
+        if param != "Minutes played" and df[param].dtype in ['float64', 'int64']:
+            df[param + " per 90"] = (df[param] / df["Minutes played"]) * 90
+    # Add "per 90" suffix to selected parameters
+    params = [param + " per 90" for param in params]
+else:
+    # Use total values (no changes needed)
+    params = selected_params
+
+# Re-filter the data
+filtered_players = df[(df['Position'].isin(position_mapping[selected_position_group])) & (df['Minutes played'] >= min_minutes_played)]
+
+# Recalculate values for radar plot and percentile rank
+a_values = []
+b_values = []
+
+for _, row in df.iterrows():
+    if row['Player'] == Name:
+        a_values = row[params].tolist()
+    if row['Player'] == Name2:
+        b_values = row[params].tolist()
+
+if Name2 == "League Average":
+    league_average_values = filtered_players[filtered_players['Player'] != Name][params].mean().tolist()
+    b_values = league_average_values
+
+# Update radar chart and percentile rank
+player_data = filtered_players.loc[filtered_players['Player'] == Name, params].iloc[0]
+values = [math.floor(stats.percentileofscore(filtered_players[param], player_data[param])) for param in params]
+
+# Recalculate table for head-to-head comparison
+head_to_head_df = pd.DataFrame({
+    'Player': [Name, Name2],
+    **{param: [a_values[i], b_values[i]] for i, param in enumerate(params)}
+})
+head_to_head_df_transposed = head_to_head_df.set_index('Player').T
+max_values = head_to_head_df_transposed.max()
+highlighted_df = head_to_head_df_transposed.style.format("{:.2f}").apply(lambda row: ['background-color: grey' if val == row.max() else '' for val in row], axis=1)
+
+# Update the percentile rank pizza chart values
+values = [math.floor(stats.percentileofscore(filtered_players[param], player_data[param])) for param in params]
 
 
 # with st.expander("Show Players Table"):
