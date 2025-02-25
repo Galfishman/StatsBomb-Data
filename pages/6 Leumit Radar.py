@@ -230,7 +230,7 @@ ax2.set_facecolor('#121212')          # Light grey axes background
 
 
 # Calculate the width and height of the title box
-title = f"{Name} Percentile Rank\n{'Compare to all'} {selected_position_group} {'in'} {'Ligat Haal'}"
+title = f"{Name} Percentile Rank\n{'Compare to all'} {selected_position_group} {'in'} {'Liga Leumit'}"
 title_bbox_props = dict(boxstyle="round,pad=0.3", facecolor="white", edgecolor="#000000", lw=1)
 # Add the title box
 fig2.text(0.515, 0.97, title, size=18, ha="center", color="#000000", bbox=title_bbox_props)
