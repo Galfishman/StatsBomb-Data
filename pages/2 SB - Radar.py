@@ -165,9 +165,6 @@ columns_to_drop = [
 df = df.drop(columns=columns_to_drop)
 df.columns = df.columns.str.replace('player_season_', '')
 df.columns = df.columns.str.replace('_90', '')
-# Replace underscores with spaces and convert each word to title case
-df.columns = df.columns.str.replace('_', ' ').str.title()
-
 
 ###login
 st.title("MTA RADAR StatsBomb Comparison | Data is per 90 min")
