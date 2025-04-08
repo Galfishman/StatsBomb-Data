@@ -15,11 +15,12 @@ import requests
 from tempfile import mkdtemp
 
 # Credentials and environment variables
+credentials = {"user": "gfishman@mtafc.com", "passwd": "KY68PkII"}
 
 # Set your login credentials
-credentials = st.secrets["credentials"]
+# credentials = st.secrets["credentials"]
 # Set your login credentials
-credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.passwd}
+# credentials = {"user": st.secrets.credentials.user, "passwd": st.secrets.credentials.passwd}
 
 plt.rcParams['font.family'] = 'Liberation Serif'
 plt.rcParams['font.sans-serif'] = 'Palatino Linotype'
