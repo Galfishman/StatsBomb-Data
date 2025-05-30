@@ -209,14 +209,35 @@ st.sidebar.header("Filter Here:")
 radar_template = st.sidebar.selectbox("Select Radar Template:", options=["Attacking", "Defending for Attackers", "Defending for Defenders", "Attacking for Defenders", "Custom"])
 
 # --- Filter by Position Group ---
-selected_position_group = st.sidebar.selectbox("Filter by Position Group:", options=list(position_mapping.keys()))
-min_minutes_played = st.sidebar.slider("Filter by Minimum Minutes Played:", min_value=0, max_value=int(df['minutes'].max()), step=1, value=0)
+# 1. Build your selectbox
+position_groups = ["All"] + list(position_mapping.keys())
+selected_position_group = st.sidebar.selectbox(
+    "Filter by Position Group:",
+    options=position_groups
+)
 
-filtered_players = df[
-    (df['primary_position'].isin(position_mapping[selected_position_group])) &
-    (df['minutes'] >= min_minutes_played)
-]
+min_minutes_played = st.sidebar.slider(
+    "Filter by Minimum Minutes Played:",
+    min_value=0,
+    max_value=int(df['minutes'].max()),
+    step=1,
+    value=0
+)
 
+# 2. Apply filtering
+if selected_position_group == "All":
+    # only filter by minutes
+    filtered_players = df[
+        (df["minutes"] >= min_minutes_played)
+    ].copy()
+else:
+    # filter by both the chosen position group and minutes
+    allowed_positions = position_mapping[selected_position_group]
+    filtered_players = df[
+        (df["primary_position"].isin(allowed_positions)) &
+        (df["minutes"] >= min_minutes_played)
+    ].copy()
+    
 # --- Player Selection ---
 players_list = filtered_players["player_name"].unique()
 Name = st.sidebar.selectbox("Select the Player:", options=players_list)
